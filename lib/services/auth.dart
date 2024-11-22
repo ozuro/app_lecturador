@@ -30,10 +30,11 @@ class AuthService with ChangeNotifier {
         notifyListeners();
         return true;
       } else {
-        return false;
+        // return false;
+        throw Exception('Credenciales incorrectas. Inténtalo nuevamente.');
       }
     } else {
-      throw Exception('Error en la autenticación');
+      throw Exception('Credenciales incorrectas. Inténtalo nuevamente');
     }
   }
 

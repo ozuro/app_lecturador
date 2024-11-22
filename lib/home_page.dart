@@ -1,8 +1,8 @@
 import 'package:app_lecturador/login_page.dart';
 import 'package:app_lecturador/services/auth.dart';
 import 'package:flutter/material.dart';
-// import 'auth_service.dart';
 import 'package:provider/provider.dart';
+import 'consumo_page.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -11,41 +11,108 @@ class HomePage extends StatelessWidget {
     final user = authService.user;
 
     return Scaffold(
-      appBar: AppBar(title: Text('Bienvenido ${user?['name'] ?? ''}')),
-      body: Center(
+      appBar: AppBar(
+        title: Text('Bienvenido ${user?['name'] ?? ''}'),
+        backgroundColor: Color(0xFF37AFE1),
+      ),
+      drawer: Drawer(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('¡Has iniciado sesión exitosamente!'),
-            SizedBox(height: 20),
-            Text('Nombre: ${user?['name']}'),
-            Text('Email: ${user?['email']}'),
-            SizedBox(height: 20),
-            // ElevatedButton(
-            //   onPressed: () async {
-            //     // Realiza el logout
-            //     await authService.logout();
-            //     // Regresa al login después de cerrar sesión
-            //     Navigator.pushReplacementNamed(context, '/login');
-            //   },
-            //   child: Text('Cerrar sesión'),
+            // DrawerHeader(
+            //   decoration: BoxDecoration(color: Color(0xFF37AFE1)),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       Text(
+            //         user?['name'] ?? 'Usuario',
+            //         style: TextStyle(
+            //           color: Colors.white,
+            //           fontSize: 18,
+            //           fontWeight: FontWeight.bold,
+            //         ),
+            //       ),
+            //       Text(
+            //         user?['name'] ?? 'Usuario',
+            //         style: TextStyle(color: Colors.white70, fontSize: 14),
+            //       ),
+            //     ],
+            //   ),
             // ),
-            ElevatedButton(
-              onPressed: () async {
-                // Realiza el logout
-                await authService.logout();
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xFF37AFE1), // Fondo celeste completo
+              ),
+              child: Stack(
+                children: [
+                  Center(
+                    child: ClipOval(
+                      child: Container(
+                        width: 120, // Tamaño del círculo interno
+                        height: 120,
+                        color:
+                            Colors.white.withOpacity(0.2), // Círculo más claro
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${user?['name'] ?? 'Usuario'}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        // Text(
+                        //   user?['role']?.toString().capitalize() ?? 'Desconocido',
+                        //   style: TextStyle(color: Colors.white70, fontSize: 14),
+                        // ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-                // Redirige directamente al login y elimina la pila de navegación previa
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Inicio'),
+              onTap: () {
+                Navigator.pop(context); // Cierra el Drawer
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.assignment),
+              title: Text('Consumo'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ConsumoPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Cerrar sesión'),
+              onTap: () async {
+                await authService.logout();
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => LoginPage()),
-                  (Route<dynamic> route) => false,
+                  (route) => false,
                 );
               },
-              child: Text('Cerrar sesión'),
             ),
           ],
         ),
+      ),
+      body: Center(
+        child: Text('¡Has iniciado sesión exitosamente!'),
       ),
     );
   }

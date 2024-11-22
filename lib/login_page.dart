@@ -1,7 +1,6 @@
 import 'package:app_lecturador/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// import 'auth_service.dart';
 import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,20 +12,39 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   String? errorMessage;
+  bool isLoading = false;
 
   void login() async {
-    bool isSuccess = await Provider.of<AuthService>(context, listen: false)
-        .login(emailController.text, passwordController.text);
-
-    if (isSuccess) {
-      // Si el login fue exitoso, redirige a la página de inicio
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage()),
-      );
-    } else {
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
       setState(() {
-        errorMessage = "Credenciales incorrectas.";
+        errorMessage = "Por favor, completa todos los campos.";
+      });
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      bool isSuccess = await Provider.of<AuthService>(context, listen: false)
+          .login(emailController.text, passwordController.text);
+
+      if (isSuccess) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      }
+    } catch (e) {
+      // Mostrar el mensaje de error lanzado por AuthService
+      setState(() {
+        errorMessage = e.toString().replaceAll('Exception: ', '');
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
       });
     }
   }
@@ -34,32 +52,99 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Iniciar sesión')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (errorMessage != null)
-              Text(
-                errorMessage!,
-                style: TextStyle(color: Colors.red),
-              ),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+      backgroundColor: Color(0xFF37AFE1),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Encabezado
+                Text(
+                  'Junta Administradora de\nServicios de Saneamiento',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 40),
+                // Tarjeta de login
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                  elevation: 8.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Iniciar Sesión',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF37AFE1),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        if (errorMessage != null)
+                          Text(
+                            errorMessage!,
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        SizedBox(height: 10),
+                        // Campo de email
+                        TextField(
+                          controller: emailController,
+                          decoration: InputDecoration(
+                            labelText: 'Correo electrónico',
+                            border: OutlineInputBorder(),
+                            prefixIcon:
+                                Icon(Icons.email, color: Color(0xFF37AFE1)),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        // Campo de contraseña
+                        TextField(
+                          controller: passwordController,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            labelText: 'Contraseña',
+                            border: OutlineInputBorder(),
+                            prefixIcon:
+                                Icon(Icons.lock, color: Color(0xFF37AFE1)),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        // Botón de inicio de sesión
+                        isLoading
+                            ? CircularProgressIndicator()
+                            : ElevatedButton(
+                                onPressed: login,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF37AFE1),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 40, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Iniciar sesión',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'Contraseña'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: login,
-              child: Text('Iniciar sesión'),
-            ),
-          ],
+          ),
         ),
       ),
     );
