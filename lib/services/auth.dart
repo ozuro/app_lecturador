@@ -25,12 +25,15 @@ class AuthService with ChangeNotifier {
         // Guardar el token y los datos del usuario
         _token = data['data']['token'];
         _user = data['data']['user'];
+
+        // Guardar el token y los datos del usuario en SharedPreferences
         await _saveToken(_token!);
         await _saveUser(_user!);
-        notifyListeners();
+
+        print('Token guardado: $_token'); // Imprimir para depuración
+        notifyListeners(); // Notificar a los escuchadores que el estado ha cambiado
         return true;
       } else {
-        // return false;
         throw Exception('Credenciales incorrectas. Inténtalo nuevamente.');
       }
     } else {
@@ -41,24 +44,28 @@ class AuthService with ChangeNotifier {
   // Verificar si el usuario está autenticado
   Future<bool> checkIfLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Obtener el token y el usuario guardado
     _token = prefs.getString('auth_token');
     _user = prefs.getString('auth_user') != null
         ? json.decode(prefs.getString('auth_user')!)
         : null;
-    notifyListeners();
+
+    print('Token recuperado: $_token'); // Imprimir para depuración
+    notifyListeners(); // Notificar a los escuchadores que el estado ha cambiado
     return _token != null;
   }
 
   // Guardar el token en SharedPreferences
   Future<void> _saveToken(String token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('auth_token', token);
+    await prefs.setString('auth_token', token);
   }
 
   // Guardar los datos del usuario en SharedPreferences
   Future<void> _saveUser(Map<String, dynamic> user) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('auth_user', json.encode(user));
+    await prefs.setString('auth_user', json.encode(user));
   }
 
   // Realizar el logout

@@ -1,14 +1,24 @@
-import 'package:app_lecturador/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'login_page.dart';
+import 'services/auth.dart';
+import 'services/consumo_service.dart';
+import 'services/api_buscar.dart';
+import 'services/api_consumo.dart'; // Importar el nuevo servicio
 import 'home_page.dart';
-// import 'auth_service.dart';
+import 'login_page.dart';
+import 'buscar.dart';
+import 'lista_cliente.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => AuthService(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => AuthService()),
+        ChangeNotifierProvider(create: (context) => ConsumoService()),
+        ChangeNotifierProvider(create: (context) => ApiBuscar()),
+        ChangeNotifierProvider(
+            create: (context) => ApiConsumo()), // Agregar aquí
+      ],
       child: MyApp(),
     ),
   );
@@ -18,24 +28,33 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Login',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: FutureBuilder(
-        future:
-            Provider.of<AuthService>(context, listen: false).checkIfLoggedIn(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.data == true) {
-            return HomePage(); // Si el token está guardado, va a HomePage
-          } else {
-            return LoginPage(); // Si no, va a la página de Login
-          }
-        },
-      ),
+      title: 'App Lecturador',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => LoginPage(),
+        '/home': (context) => HomePage(),
+        '/buscar': (context) => BuscarPage(),
+        '/lista_cliente': (context) => ListaClientePageWrapper(),
+      },
     );
+  }
+}
+
+class ListaClientePageWrapper extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Asegurarte de manejar el caso donde `args` sea nulo o no sea un Map.
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    if (args == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text('Error')),
+        body: Center(child: Text('No se encontraron datos del cliente.')),
+      );
+    }
+
+    return ListaClientePage(cliente: args);
   }
 }
