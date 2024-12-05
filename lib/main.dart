@@ -60,6 +60,8 @@
 //     return ListaClientePage(cliente: args);
 //   }
 // }
+import 'package:app_lecturador/editarconsumo.dart';
+import 'package:app_lecturador/services/editconsumo_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_lecturador/services/createconsumo_api.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +85,8 @@ void main() {
         ChangeNotifierProvider(create: (context) => ApiBuscar()),
         ChangeNotifierProvider(create: (context) => ApiConsumo()),
         ChangeNotifierProvider(create: (context) => ApiConsumocreate()),
+        // ChangeNotifierProvider(create: (context) => ApiConsumoUpdate()),
+
         // Agregar aquí
       ],
       child: MyApp(),
@@ -102,6 +106,8 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomePage(),
         '/buscar': (context) => BuscarPage(),
         '/lista_cliente': (context) => ListaClientePageWrapper(),
+        // '/editaconsumo': (context) => EditarConsumoPage(),
+
         // '/formulario_consumo': (context) =>
         //     FormularioConsumo(clienteId:),
       },

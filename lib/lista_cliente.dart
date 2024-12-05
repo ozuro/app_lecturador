@@ -1,8 +1,9 @@
+import 'package:app_lecturador/editarconsumo.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'services/api_consumo.dart';
-import 'formulario_consumo.dart'; // Asegúrate de importar el archivo donde tienes definido el formulario
+import 'package:app_lecturador/formulario_consumo.dart'; // Asegúrate de importar el archivo donde tienes definido el formulario
 
 class ListaClientePage extends StatefulWidget {
   final Map<String, dynamic> cliente;
@@ -122,17 +123,18 @@ class _ListaClientePageState extends State<ListaClientePage> {
                               DataCell(Row(
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.edit,
-                                        color: Colors.blue),
-                                    onPressed: () {
-                                      print(
-                                          "Editar consumo ID: ${consumo['id']}");
-                                    },
-                                  ),
-                                  IconButton(
                                     icon: const Icon(Icons.delete,
                                         color: Colors.red),
                                     onPressed: () {
+                                      final id = consumo['id'];
+                                      final cliente = widget.cliente['id'];
+
+                                      // MaterialPageRoute(
+                                      //   builder: (context) => FormularioConsumo(
+                                      //     consumoId: id,
+                                      //     clienteId: cliente,
+                                      //   ),
+                                      // );
                                       print(
                                           "Eliminar consumo ID: ${consumo['id']}");
                                     },

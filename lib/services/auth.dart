@@ -13,7 +13,7 @@ class AuthService with ChangeNotifier {
   // Método para iniciar sesión
   Future<bool> login(String email, String password) async {
     final response = await http.post(
-      Uri.parse('http://192.168.104.101:8000/api/api_login'), // Tu API
+      Uri.parse('http://192.168.56.59:8000/api/api_login'), // Tu API
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'email': email, 'password': password}),
     );

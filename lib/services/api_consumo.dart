@@ -9,8 +9,7 @@ class ApiConsumo with ChangeNotifier {
 
   // Método para obtener consumos de un cliente por ID
   Future<void> obtenerConsumos(int clienteId, String token) async {
-    final url =
-        Uri.parse('http://192.168.104.101:8000/api/consumos/$clienteId');
+    final url = Uri.parse('http://192.168.56.59:8000/api/consumos/$clienteId');
     try {
       final response = await http.get(
         url,
