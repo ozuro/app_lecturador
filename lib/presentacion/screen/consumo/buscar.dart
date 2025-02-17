@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'services/api_buscar.dart'; // Asegúrate de que esta clase sea correcta
+import '../../../services/api_buscar.dart'; // Asegúrate de que esta clase sea correcta
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BuscarPage extends StatefulWidget {
+  static String routeName = '/buscarConsumo';
+  const BuscarPage({super.key});
   @override
   _BuscarPageState createState() => _BuscarPageState();
 }
@@ -70,7 +72,7 @@ class _BuscarPageState extends State<BuscarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Buscar Cliente'),
+        title: const Text('Buscar Cliente'),
         backgroundColor: Color(0xFF37AFE1),
       ),
       body: Padding(
@@ -81,21 +83,21 @@ class _BuscarPageState extends State<BuscarPage> {
             TextField(
               controller: dniController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'DNI del Cliente',
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.person_search, color: Color(0xFF37AFE1)),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             if (errorMessage != null)
               Text(
                 errorMessage!,
-                style: TextStyle(color: Colors.red),
+                style: const TextStyle(color: Colors.red),
               ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             isLoading
-                ? CircularProgressIndicator()
+                ? const CircularProgressIndicator()
                 : ElevatedButton(
                     onPressed: buscarCliente,
                     style: ElevatedButton.styleFrom(
@@ -107,7 +109,7 @@ class _BuscarPageState extends State<BuscarPage> {
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
-                    child: Text('Buscar', style: TextStyle(fontSize: 16)),
+                    child: const Text('Buscar', style: TextStyle(fontSize: 16)),
                   ),
           ],
         ),

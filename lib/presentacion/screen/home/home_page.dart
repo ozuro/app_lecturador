@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'services/auth.dart';
-import 'presentacion/screen/login/login_page.dart';
+import '../../../services/auth.dart';
+import '../login/login_page.dart';
 
 class HomePage extends StatelessWidget {
+  static String routeName = '/home';
+  const HomePage({super.key});
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
@@ -44,7 +46,7 @@ class HomePage extends StatelessWidget {
               leading: Icon(Icons.assignment),
               title: Text('Consumo'),
               onTap: () {
-                Navigator.pushNamed(context, '/buscar');
+                Navigator.pushNamed(context, '/buscarConsumo');
               },
             ),
             ListTile(
