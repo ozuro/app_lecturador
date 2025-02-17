@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ConsumoService with ChangeNotifier {
   final String _baseUrl =
-      'http://192.168.56.59:8000/api'; // Cambia la URL según tu API
+      'http://192.168.57.33:8000/api'; // Cambia la URL según tu API
 
   // Obtener consumos del cliente por DNI
   Future<List<dynamic>> getConsumosByDni(String dni) async {

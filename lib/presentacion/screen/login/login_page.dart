@@ -1,9 +1,11 @@
 import 'package:app_lecturador/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'home_page.dart';
+import '../../../home_page.dart';
 
 class LoginPage extends StatefulWidget {
+  // static String routeName = '/';
+  // const LoginPage({super.key});
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -61,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Encabezado
-                Text(
+                const Text(
                   'Junta Administradora de\nServicios de Saneamiento',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -70,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 // Tarjeta de login
                 Card(
                   shape: RoundedRectangleBorder(
@@ -81,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                     padding: const EdgeInsets.all(24.0),
                     child: Column(
                       children: [
-                        Text(
+                        const Text(
                           'Iniciar Sesión',
                           style: TextStyle(
                             fontSize: 20,
@@ -89,39 +91,39 @@ class _LoginPageState extends State<LoginPage> {
                             color: Color(0xFF37AFE1),
                           ),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         if (errorMessage != null)
                           Text(
                             errorMessage!,
-                            style: TextStyle(color: Colors.red),
+                            style: const TextStyle(color: Colors.red),
                           ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         // Campo de email
                         TextField(
                           controller: emailController,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Correo electrónico',
                             border: OutlineInputBorder(),
                             prefixIcon:
                                 Icon(Icons.email, color: Color(0xFF37AFE1)),
                           ),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         // Campo de contraseña
                         TextField(
                           controller: passwordController,
                           obscureText: true,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Contraseña',
                             border: OutlineInputBorder(),
                             prefixIcon:
                                 Icon(Icons.lock, color: Color(0xFF37AFE1)),
                           ),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         // Botón de inicio de sesión
                         isLoading
-                            ? CircularProgressIndicator()
+                            ? const CircularProgressIndicator()
                             : ElevatedButton(
                                 onPressed: login,
                                 style: ElevatedButton.styleFrom(
@@ -133,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
                                 ),
-                                child: Text(
+                                child: const Text(
                                   'Iniciar sesión',
                                   style: TextStyle(fontSize: 16),
                                 ),
