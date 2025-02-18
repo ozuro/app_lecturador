@@ -1,13 +1,13 @@
-import 'package:app_lecturador/editarconsumo.dart';
+import 'package:app_lecturador/presentacion/screen/consumo/editarconsumo.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'services/api_consumo.dart';
-import 'package:app_lecturador/formulario_consumo.dart'; // Asegúrate de importar el archivo donde tienes definido el formulario
+import '../../../services/consumos/api_consumo.dart';
+import 'package:app_lecturador/presentacion/screen/consumo/crear_consumo.dart'; // Asegúrate de importar el archivo donde tienes definido el formulario
 
 class ListaClientePage extends StatefulWidget {
   final Map<String, dynamic> cliente;
-
+  static String routeName = '/lista_cliente';
   const ListaClientePage({Key? key, required this.cliente}) : super(key: key);
 
   @override

@@ -1,4 +1,4 @@
-import 'package:app_lecturador/services/auth.dart';
+import 'package:app_lecturador/services/consumos/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../home/home_page.dart';

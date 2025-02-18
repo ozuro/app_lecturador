@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../services/api_buscar.dart'; // Asegúrate de que esta clase sea correcta
+import '../../../services/consumos/api_buscar.dart'; // Asegúrate de que esta clase sea correcta
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BuscarPage extends StatefulWidget {
