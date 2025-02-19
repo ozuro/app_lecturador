@@ -1,4 +1,5 @@
-import 'package:app_lecturador/presentacion/screen/consumo/editarconsumo.dart';
+import 'package:app_lecturador/presentacion/screen/consumo/consumo.dart';
+import 'package:app_lecturador/presentacion/screen/consumo/editar_consumo.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -72,11 +73,23 @@ class _ListaClientePageState extends State<ListaClientePage> {
           children: [
             // Datos del Cliente
             Text(
+              "Nombre: ${widget.cliente['nombres']}",
+              style: const TextStyle(
+                fontSize: 18,
+              ),
+            ),
+            Text(
+              "Apellidos: ${widget.cliente['apellidos']}",
+              style: const TextStyle(
+                fontSize: 18,
+              ),
+            ),
+            Text(
               "DNI: ${widget.cliente['dni']}",
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Text("Celular: ${widget.cliente['celular']}"),
-            Text("Dirección: ${widget.cliente['direccion_id']}"),
+            // Text("Dirección: ${widget.conexion['direccion_id']}"),
             const SizedBox(height: 16),
             // Botón para Agregar Consumo
             ElevatedButton(
@@ -105,38 +118,41 @@ class _ListaClientePageState extends State<ListaClientePage> {
               Expanded(
                 child: Column(
                   children: [
+                    Text("Lista de conexiones"),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: DataTable(
                         columns: const [
-                          DataColumn(label: Text("Mes")),
-                          DataColumn(label: Text("C Ant")),
-                          DataColumn(label: Text("C Act")),
+                          DataColumn(label: Text("Id")),
+                          DataColumn(label: Text("Cod")),
+                          DataColumn(label: Text("Estado")),
                           DataColumn(label: Text("Acciones")),
                         ],
-                        rows: paginatedConsumos.map((consumo) {
+                        rows: paginatedConsumos.map((conexion) {
                           return DataRow(
                             cells: [
-                              DataCell(Text("${consumo['mes']}")),
-                              DataCell(Text("${consumo['consumo_anterior']}")),
-                              DataCell(Text("${consumo['consumo_actual']}")),
+                              DataCell(Text("${conexion['id']}")),
+                              DataCell(Text("${conexion['codigo']}")),
+                              DataCell(Text("${conexion['estado']}")),
                               DataCell(Row(
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.delete,
+                                    icon: const Icon(Icons.search,
                                         color: Colors.red),
                                     onPressed: () {
-                                      final id = consumo['id'];
+                                      final id = conexion['id'];
                                       final cliente = widget.cliente['id'];
 
-                                      // MaterialPageRoute(
-                                      //   builder: (context) => FormularioConsumo(
-                                      //     consumoId: id,
-                                      //     clienteId: cliente,
-                                      //   ),
-                                      // );
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ConsumoLista(
+                                            id,
+                                          ),
+                                        ),
+                                      );
                                       print(
-                                          "Eliminar consumo ID: ${consumo['id']}");
+                                          "Eliminar consumo ID: ${conexion['id']}");
                                     },
                                   ),
                                 ],
