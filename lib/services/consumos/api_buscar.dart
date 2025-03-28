@@ -6,7 +6,7 @@ class ApiBuscar with ChangeNotifier {
   // Método para buscar cliente
   Future<Map<String, dynamic>?> buscarCliente(String dni, String token) async {
     final response = await http.post(
-      Uri.parse('http://192.168.12.70:8000/api/consumos/buscar'),
+      Uri.parse('http://192.168.228.240:8000/api/consumos/buscar'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token', // Envía el token en la cabecera

@@ -1,5 +1,4 @@
 import 'package:app_lecturador/presentacion/screen/consumo/consumo.dart';
-import 'package:app_lecturador/presentacion/screen/consumo/editar_consumo.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -106,7 +105,7 @@ class _ListaClientePageState extends State<ListaClientePage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF37AFE1),
               ),
-              child: const Text("Agregar Consumo"),
+              child: const Text("Agregar Conexiones"),
             ),
             const SizedBox(height: 16),
             // Tabla de Consumos
@@ -152,7 +151,7 @@ class _ListaClientePageState extends State<ListaClientePage> {
                                         ),
                                       );
                                       print(
-                                          "Eliminar consumo ID: ${conexion['id']}");
+                                          "ver consumo ID: ${conexion['id']}");
                                     },
                                   ),
                                 ],

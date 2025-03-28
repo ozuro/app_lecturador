@@ -44,7 +44,7 @@ class HomePage extends StatelessWidget {
             ),
             ListTile(
               leading: Icon(Icons.assignment),
-              title: Text('Consumo'),
+              title: Text('Conexiones'),
               onTap: () {
                 Navigator.pushNamed(context, '/buscarConsumo');
               },

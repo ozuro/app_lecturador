@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 class ApiConsumocreate with ChangeNotifier {
   // URL base de la API
-  final String baseUrl = 'http://192.168.56.59:8000/api/consumos';
+  final String baseUrl = 'http://192.168.228.240:8000/api/consumos';
 
   // Método para crear un consumo
   Future<Map<String, dynamic>> crearConsumo({
