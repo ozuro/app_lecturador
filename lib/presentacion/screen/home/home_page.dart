@@ -50,6 +50,13 @@ class HomePage extends StatelessWidget {
               },
             ),
             ListTile(
+              leading: Icon(Icons.group),
+              title: Text('Consumos'),
+              onTap: () {
+                Navigator.pushNamed(context, '/buscarConsumo');
+              },
+            ),
+            ListTile(
               leading: Icon(Icons.logout),
               title: Text('Cerrar sesión'),
               onTap: () async {

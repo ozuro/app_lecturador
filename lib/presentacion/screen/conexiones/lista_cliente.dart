@@ -1,9 +1,9 @@
-import 'package:app_lecturador/presentacion/screen/consumo/consumo.dart';
+import 'package:app_lecturador/presentacion/screen/conexiones/conexiones.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../services/consumos/api_consumo.dart';
-import 'package:app_lecturador/presentacion/screen/consumo/crear_consumo.dart'; // Asegúrate de importar el archivo donde tienes definido el formulario
+import 'package:app_lecturador/presentacion/screen/conexiones/crear_consumo.dart'; // Asegúrate de importar el archivo donde tienes definido el formulario
 
 class ListaClientePage extends StatefulWidget {
   final Map<String, dynamic> cliente;
