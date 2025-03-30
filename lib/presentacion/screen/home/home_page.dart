@@ -1,3 +1,4 @@
+import 'package:app_lecturador/presentacion/screen/consumos/home_consumos.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../services/consumos/auth.dart';
@@ -52,8 +53,13 @@ class HomePage extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.group),
               title: Text('Consumos'),
-              onTap: () {
-                Navigator.pushNamed(context, '/buscarConsumo');
+              onTap: () async {
+                await authService.logout();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeConsumos()),
+                  (route) => false,
+                );
               },
             ),
             ListTile(
