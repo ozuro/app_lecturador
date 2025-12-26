@@ -1,0 +1,2 @@
+C:/Users/ALVARO PL/Desktop/app_lecturador/app_lecturador/android/app/.cxx/Debug/1u3k2f6o/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/ALVARO PL/Desktop/app_lecturador/app_lecturador/android/app/.cxx/Debug/1u3k2f6o/armeabi-v7a/CMakeFiles/rebuild_cache.dir

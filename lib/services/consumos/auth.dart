@@ -13,7 +13,7 @@ class AuthService with ChangeNotifier {
   // Método para iniciar sesión
   Future<bool> login(String email, String password) async {
     final response = await http.post(
-      Uri.parse('http://192.168.228.240:8000/api/api_login'), // Tu API
+      Uri.parse('http://10.212.35.218:8000/api/api_login'), // Tu API
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'email': email, 'password': password}),
     );
@@ -30,7 +30,7 @@ class AuthService with ChangeNotifier {
         await _saveToken(_token!);
         await _saveUser(_user!);
 
-        print('Token guardado: $_token'); // Imprimir para depuración
+        // print('Token guardado: $_token'); // Imprimir para depuración
         notifyListeners(); // Notificar a los escuchadores que el estado ha cambiado
         return true;
       } else {
@@ -51,7 +51,7 @@ class AuthService with ChangeNotifier {
         ? json.decode(prefs.getString('auth_user')!)
         : null;
 
-    print('Token recuperado: $_token'); // Imprimir para depuración
+    // print('Token recuperado: $_token'); // Imprimir para depuración
     notifyListeners(); // Notificar a los escuchadores que el estado ha cambiado
     return _token != null;
   }

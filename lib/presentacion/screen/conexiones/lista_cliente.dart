@@ -78,7 +78,7 @@ class _ListaClientePageState extends State<ListaClientePage> {
               ),
             ),
             Text(
-              "Apellidos: ${widget.cliente['apellidos']}",
+              "Apellidos: ${widget.cliente['apellidosssssss']}",
               style: const TextStyle(
                 fontSize: 18,
               ),

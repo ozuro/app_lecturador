@@ -109,7 +109,8 @@ class _BuscarPageState extends State<BuscarPage> {
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
-                    child: const Text('Buscar', style: TextStyle(fontSize: 16)),
+                    child:
+                        const Text('Buscarr', style: TextStyle(fontSize: 16)),
                   ),
           ],
         ),

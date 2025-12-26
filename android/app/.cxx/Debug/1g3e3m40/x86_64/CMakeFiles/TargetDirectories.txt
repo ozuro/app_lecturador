@@ -1,0 +1,2 @@
+C:/Users/ALVARO PL/Desktop/PROYECTOS_PROGRAMACION/app_lecturador/app_lecturador/android/app/.cxx/Debug/1g3e3m40/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/ALVARO PL/Desktop/PROYECTOS_PROGRAMACION/app_lecturador/app_lecturador/android/app/.cxx/Debug/1g3e3m40/x86_64/CMakeFiles/rebuild_cache.dir
