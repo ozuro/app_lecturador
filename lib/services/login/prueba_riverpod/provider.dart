@@ -1,7 +1,6 @@
-import 'package:app_lecturador/services/login/prueba_riverpod/notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
-import 'auth_state.dart';
+import 'package:app_lecturador/services/login/prueba_riverpod/notifier.dart';
+import 'package:app_lecturador/services/login/prueba_riverpod/auth_state.dart';
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier();

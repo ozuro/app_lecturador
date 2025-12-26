@@ -1,6 +1,5 @@
 import 'package:app_lecturador/auth/login.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 
 class AuthNotifier extends StateNotifier<bool> {
   AuthNotifier() : super(false);

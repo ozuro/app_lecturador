@@ -16,20 +16,11 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-
-      // 👇 RUTA INICIAL
-      initialRoute: '/login',
-
-      // 👇 REGISTRO DE RUTAS
-      routes: {
-        '/login': (context) => const LoginPage(),
-        '/consumos': (context) => const ConsumosScreen(),
-      },
+      home: LoginPage(),
     );
   }
 }
