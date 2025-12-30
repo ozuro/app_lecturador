@@ -1,3 +1,6 @@
+import 'dart:ffi';
+
+import 'package:app_lecturador/services/login/prueba_riverpod/detalleconsumo.dart';
 import 'package:app_lecturador/services/login/prueba_riverpod/provider_consumo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,22 +21,27 @@ class ConsumosScreen extends ConsumerWidget {
           if (consumos.isEmpty) {
             return const Center(child: Text('No hay registros'));
           }
-          return ListView.builder(
-            itemCount: consumos.length,
-            itemBuilder: (_, i) {
-              final c = consumos[i];
-              return ListTile(
-                leading: Icon(
-                  c.registrado ? Icons.check_circle : Icons.warning,
-                  color: c.registrado ? Colors.green : Colors.orange,
-                ),
-                title: Text(c.cliente),
-                subtitle: Text('Conexión ${c.codigoConexion} • ${c.direccion}'),
-                trailing: Text(
-                    c.registrado ? 'Consumo: ${c.consumoActual}' : 'Pendiente'),
-              );
-            },
-          );
+          return return ListView.builder(
+  itemCount: consumos.length,
+  itemBuilder: (_, i) {
+    final consumo = consumos[i];
+
+    return ListTile(
+      title: Text(consumo.cliente),
+      trailing: const Icon(Icons.arrow_forward_ios),
+      onTap: () {
+        // Acción al entrar a la fila
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DetalleConsumo(consumo: consumo),
+          ),
+        );
+      },
+    );
+  },
+);
+
         },
       ),
     );
