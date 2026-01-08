@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 // tu modelo de consumo
 
 class ConsumosRemoteDataSource {
-  final String baseUrl = 'http://10.226.193.191:8000/api/consumos/index';
+  final String baseUrl = 'http://10.43.53.193:8000/api/consumos/index';
   Future<List<Consumo>> getConsumos({
     String month = "2025-12",
     String direccionId = "1",

@@ -9,3 +9,15 @@ class Consumo {
     );
   }
 }
+
+class Direccions {
+  final String direccion;
+
+  Direccions({required this.direccion});
+
+  factory Direccions.fromJson(Map<String, dynamic> json) {
+    return Direccions(
+      direccion: '${json['direccion']['nombre']}',
+    );
+  }
+}
