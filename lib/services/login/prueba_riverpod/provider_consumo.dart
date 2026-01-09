@@ -2,14 +2,14 @@ import 'package:app_lecturador/services/login/prueba_riverpod/model.dart';
 import 'package:app_lecturador/services/login/prueba_riverpod/servicio_consumo.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ConsumosNotifier extends StateNotifier<AsyncValue<List<Consumo>>> {
+class ConsumosNotifier extends StateNotifier<AsyncValue<List<Conexion>>> {
   ConsumosNotifier() : super(const AsyncValue.loading()) {
-    fetchConsumos();
+    fetchConexiones();
   }
 
-  Future<void> fetchConsumos() async {
+  Future<void> fetchConexiones() async {
     try {
-      final data = await ConsumosRemoteDataSource().getConsumos();
+      final data = await ConsumosRemoteDataSource().getConexiones();
       state = AsyncValue.data(data);
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
@@ -18,6 +18,6 @@ class ConsumosNotifier extends StateNotifier<AsyncValue<List<Consumo>>> {
 }
 
 final consumosProvider =
-    StateNotifierProvider<ConsumosNotifier, AsyncValue<List<Consumo>>>(
+    StateNotifierProvider<ConsumosNotifier, AsyncValue<List<Conexion>>>(
   (ref) => ConsumosNotifier(),
 );

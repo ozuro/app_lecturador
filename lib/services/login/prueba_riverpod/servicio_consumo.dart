@@ -5,8 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 // tu modelo de consumo
 
 class ConsumosRemoteDataSource {
-  final String baseUrl = 'http://10.43.53.193:8000/api/consumos/index';
-  Future<List<Consumo>> getConsumos({
+  final String baseUrl = 'http://10.165.0.160:8000/api/consumos/index';
+
+  Future<List<Conexion>> getConexiones({
     String month = "2025-12",
     String direccionId = "1",
   }) async {
@@ -37,6 +38,6 @@ class ConsumosRemoteDataSource {
     // ✅ AQUÍ ESTABA EL ERROR
     final List<dynamic> list = jsonDecode(response.body);
 
-    return list.map((json) => Consumo.fromJson(json)).toList();
+    return list.map((json) => Conexion.fromJson(json)).toList();
   }
 }
