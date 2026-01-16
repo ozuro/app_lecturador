@@ -1,8 +1,4 @@
-import 'package:app_lecturador/provider/home_riverpod.dart';
-import 'package:app_lecturador/services/login/prueba_riverpod/auth_state.dart';
-import 'package:app_lecturador/services/login/prueba_riverpod/logiin_vista.dart'
-    show LoginPage;
-import 'package:app_lecturador/services/login/prueba_riverpod/provider.dart';
+import 'package:app_lecturador/presentation/screens/auth_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,7 +14,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: LoginPage(),
     );

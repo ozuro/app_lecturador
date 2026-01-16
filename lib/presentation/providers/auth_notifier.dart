@@ -1,4 +1,4 @@
-import 'package:app_lecturador/domain/entities/auth_state.dart';
+import 'package:app_lecturador/presentation/providers/auth_state.dart';
 import 'package:app_lecturador/domain/reporsitories/auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

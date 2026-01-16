@@ -1,9 +1,9 @@
-import 'package:app_lecturador/domain/entities/auth_state.dart';
+import 'package:app_lecturador/presentation/providers/auth_state.dart';
+import 'package:app_lecturador/presentation/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/auth_provider.dart';
-import '../../consumos/screens/consumos_screen.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -29,7 +29,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       if (next.status == AuthStatus.authenticated) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) => const ConsumosScreen(),
+            builder: (_) => const HomeScreen(),
           ),
         );
       }
