@@ -15,7 +15,9 @@ class AuthState {
   });
 
   factory AuthState.initial() {
-    return const AuthState(status: AuthStatus.unauthenticated);
+    return const AuthState(
+      status: AuthStatus.unauthenticated,
+    );
   }
 
   AuthState copyWith({
