@@ -1,5 +1,6 @@
+import 'package:app_lecturador/domain/entities/consumo_entities.dart';
 import 'package:app_lecturador/presentation/screens/consumos/lista_consumo.dart'
-    show ListaConsumo;
+    show ConsumosPage, ListaConsumo;
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -42,7 +43,7 @@ class HomeScreen extends StatelessWidget {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const ListaConsumo()));
+                      builder: (context) => const ConsumosPage()));
             },
           ),
           const ListTile(
