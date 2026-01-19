@@ -1,5 +1,5 @@
 import 'package:app_lecturador/data/local/token_storage.dart';
-import 'package:app_lecturador/data/data_sources/auth_remote_data_sources.dart';
+import 'package:app_lecturador/data/data_sources/services/auth_remote_data_sources.dart';
 import 'package:app_lecturador/domain/reporsitories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {

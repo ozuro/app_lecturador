@@ -111,6 +111,7 @@ class _Content extends StatelessWidget {
         itemCount: state.data.length,
         itemBuilder: (_, index) {
           final conexion = state.data[index];
+          final consumo = state.data[index].consumos;
 
           return Card(
             child: ListTile(
@@ -121,6 +122,16 @@ class _Content extends StatelessWidget {
                   Text(conexion.direccion.nombre),
                   const SizedBox(height: 4),
                   Text('Consumo: ${conexion.consumoActualTexto}'),
+                  SizedBox(height: 4),
+                  Text(
+                    consumo.isNotEmpty
+                        ? 'Estados: ${consumo.last.estadoConsumo}'
+                        : 'Estados: Sin lectura',
+                    style: TextStyle(
+                      color: consumo.isNotEmpty ? Colors.green : Colors.red,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -37,6 +37,8 @@ class Conexion {
   String get consumoActualTexto =>
       ultimoConsumo?.consumoActual?.toString() ?? 'Sin lectura';
 
+  // String get estadoConsumo => consumos.estadoConsumo ?? 'Desconocido';
+
   factory Conexion.fromJson(Map<String, dynamic> json) {
     return Conexion(
       id: json['id'],

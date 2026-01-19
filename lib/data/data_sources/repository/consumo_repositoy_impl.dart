@@ -1,4 +1,4 @@
-import 'package:app_lecturador/data/data_sources/consumo_remote_data_sources.dart';
+import 'package:app_lecturador/data/data_sources/services/consumo_remote_data_sources.dart';
 import 'package:app_lecturador/domain/entities/conexion_entities.dart';
 import 'package:app_lecturador/domain/reporsitories/consumo_repository.dart';
 
