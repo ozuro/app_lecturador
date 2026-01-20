@@ -38,7 +38,7 @@ class _Content extends StatelessWidget {
           final conexion = state.data[index];
           return Card(
             child: ListTile(
-              title: Text(conexion.codigo),
+              // title: Text(conexion.codigo),
               subtitle: Text('Código: ${conexion.codigo}'),
             ),
           );
