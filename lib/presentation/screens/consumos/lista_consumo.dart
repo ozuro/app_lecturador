@@ -1,5 +1,6 @@
 import 'package:app_lecturador/presentation/providers/consumo/consumo_provider.dart';
 import 'package:app_lecturador/presentation/providers/consumo/consumo_state.dart';
+import 'package:app_lecturador/presentation/screens/consumos/registro_consumo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -142,6 +143,12 @@ class _Content extends StatelessWidget {
                       tooltip: 'Registrar consumo',
                       onPressed: () {
                         // REGISTRAR
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => const RegistroConsumoPage(),
+                        //   ),
+                        // );
                         // Navigator.push(...)
                       },
                     )
@@ -163,6 +170,18 @@ class _Content extends StatelessWidget {
                           onPressed: () {
                             // VER
                             // Navigator.push(...)
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.visibility,
+                              color: Color.fromARGB(255, 36, 65, 37)),
+                          tooltip: 'prueba',
+                          onPressed: () {
+                            // VER
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return  RegistroConsumoPage(conexionId: conexion.id,);
+                            }));
                           },
                         ),
                       ],
