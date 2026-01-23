@@ -122,7 +122,7 @@ class _Content extends StatelessWidget {
                   Text(conexion.direccion.nombre),
                   const SizedBox(height: 4),
                   Text('Consumo: ${conexion.consumoActualTexto}'),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     consumo.isNotEmpty
                         ? 'Estados: ${consumo.last.estadoConsumo}'
@@ -134,6 +134,39 @@ class _Content extends StatelessWidget {
                   ),
                 ],
               ),
+
+              /// 👉 BOTONES
+              trailing: consumo.isEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.add_circle, color: Colors.blue),
+                      tooltip: 'Registrar consumo',
+                      onPressed: () {
+                        // REGISTRAR
+                        // Navigator.push(...)
+                      },
+                    )
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.orange),
+                          tooltip: 'Editar consumo',
+                          onPressed: () {
+                            // EDITAR
+                            // Navigator.push(...)
+                          },
+                        ),
+                        IconButton(
+                          icon:
+                              const Icon(Icons.visibility, color: Colors.green),
+                          tooltip: 'Ver consumo',
+                          onPressed: () {
+                            // VER
+                            // Navigator.push(...)
+                          },
+                        ),
+                      ],
+                    ),
             ),
           );
         },
