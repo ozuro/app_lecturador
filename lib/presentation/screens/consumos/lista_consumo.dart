@@ -142,16 +142,22 @@ class _Content extends StatelessWidget {
                       icon: const Icon(Icons.add_circle, color: Colors.blue),
                       tooltip: 'Registrar consumo',
                       onPressed: () {
-                        // REGISTRAR
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => const RegistroConsumoPage(),
-                        //   ),
-                        // );
-                        // Navigator.push(...)
-                      },
-                    )
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return RegistroConsumoPage(
+                            conexionId: conexion.id,
+                          );
+                        })
+                            // REGISTRAR
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => const RegistroConsumoPage(),
+                            //   ),
+                            // );
+                            // Navigator.push(...)
+                            );
+                      })
                   : Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -180,7 +186,9 @@ class _Content extends StatelessWidget {
                             // VER
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return  RegistroConsumoPage(conexionId: conexion.id,);
+                              return RegistroConsumoPage(
+                                conexionId: conexion.id,
+                              );
                             }));
                           },
                         ),

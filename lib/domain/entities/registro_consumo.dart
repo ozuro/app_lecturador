@@ -2,7 +2,7 @@ class RegistroConsumo {
   final int conexionId;
   final String mes;
   final int consumoActual;
-  final int consumoAnterior;
+  final int? consumoAnterior;
   final String? foto;
   final bool habilitarLecturaAnterior;
 
@@ -17,10 +17,10 @@ class RegistroConsumo {
 
   factory RegistroConsumo.fromJson(Map<String, dynamic> json) {
     return RegistroConsumo(
-      conexionId: json['conexionId'],
-      mes: json['mes'],
-      consumoActual: json['consumo_actual'],
-      consumoAnterior: json['consumo_anterior'],
+      conexionId: json['conexionId'] ?? 0,
+      mes: json['mes'] ?? '',
+      consumoActual: json['consumo_actual'] ?? 0,
+      consumoAnterior: json['consumo_anterior'] ?? 0,
       foto: json['foto'],
       habilitarLecturaAnterior: json['habilitarLecturaAnterior'] ?? false,
     );

@@ -1,19 +1,32 @@
-class ConsumoState {
-  final bool isLoading;
-  final String? error;
+enum RegistroStatus {
+  noRegistrado,
+  loading,
+  registrado,
+  error,
+}
 
-  const ConsumoState({
-    this.isLoading = false,
-    this.error,
+class RegistroconsumoState {
+  final RegistroStatus status;
+  final String? errorMessage;
+
+  const RegistroconsumoState({
+    required this.status,
+    this.errorMessage,
   });
 
-  ConsumoState copyWith({
-    bool? isLoading,
-    String? error,
+  factory RegistroconsumoState.initial() {
+    return const RegistroconsumoState(
+      status: RegistroStatus.noRegistrado,
+    );
+  }
+
+  RegistroconsumoState copyWith({
+    RegistroStatus? status,
+    String? errorMessage,
   }) {
-    return ConsumoState(
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
+    return RegistroconsumoState(
+      status: status ?? this.status,
+      errorMessage: errorMessage,
     );
   }
 }

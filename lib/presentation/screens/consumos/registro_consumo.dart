@@ -1,127 +1,77 @@
-import 'package:app_lecturador/presentation/providers/home/home_provider.dart';
-import 'package:app_lecturador/presentation/widget/carta.dart';
-import 'package:app_lecturador/presentation/widget/navegacion.dart';
+import 'package:app_lecturador/presentation/providers/registro_consumo/registroConsumo_notifier.dart';
+import 'package:app_lecturador/presentation/providers/registro_consumo/registroConsumo_provider.dart';
+import 'package:app_lecturador/presentation/providers/registro_consumo/registroConsumo_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:month_selector/month_selector.dart';
 
-class RegistroConsumoPage extends ConsumerWidget {
+class RegistroConsumoPage extends ConsumerStatefulWidget {
   final int conexionId;
-  const RegistroConsumoPage({super.key, required this.conexionId});
 
-  static const String title = 'Sistema Jass Capachica';
-  static const Color colorazul = Color.fromARGB(255, 68, 128, 219);
+  const RegistroConsumoPage({
+    super.key,
+    required this.conexionId,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Escucha el provider que trae los datos del home
-    final reporteHome = ref.watch(reporteHomeProvider);
-    final _formKey = GlobalKey<FormState>();
-    bool _obscureText = true;
+  ConsumerState<RegistroConsumoPage> createState() =>
+      _RegistroConsumoPageState();
+}
 
-// month
-    DateTime? month;
+class _RegistroConsumoPageState extends ConsumerState<RegistroConsumoPage> {
+  final _formKey = GlobalKey<FormState>();
 
-    String monthDisplay(DateTime date) {
-      final month = date.month.toString().padLeft(2, '0');
-      final year = date.year.toString();
-      return "$month/$year";
-    }
+  final _mesController = TextEditingController();
+  final _consumoActualController = TextEditingController();
+
+  bool _habilitarLecturaAnterior = false;
+  String? _fotoBase64;
+
+  @override
+  void dispose() {
+    _mesController.dispose();
+    _consumoActualController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(registroConsumoNotifierProvider);
+    final notifier = ref.read(registroConsumoNotifierProvider.notifier);
+
+    ref.listen(registroConsumoNotifierProvider, (previous, next) {
+      if (next.status == RegistroStatus.registrado) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Consumo registrado correctamente')),
+        );
+        Navigator.pop(context);
+      }
+
+      if (next.status == RegistroStatus.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.errorMessage ?? 'Error desconocido')),
+        );
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(RegistroConsumoPage.title),
+        title: const Text('Registrar Consumo'),
       ),
-      drawer: navegacion(context),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+      body: AbsorbPointer(
+        absorbing: state.status == RegistroStatus.loading,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: ListView(
               children: [
-                const Text(
-                  "Registro de Consumo",
-                  style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A2E)),
-                ),
-                const SizedBox(height: 8),
-                Text("id:$conexionId",
-                    style: TextStyle(color: Colors.grey[600])),
-                SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return MonthSelector(
-                            selectedDate: month != null ? [month!] : [],
-                            callback: (res) {
-                              Navigator.pop(context);
-                              // if (res != null && res != []) {
-                              //   setState(() {
-                              //     month = res[0];
-                              //   });
-                              // }
-                            },
-                          );
-                        });
-                  },
-                  child: Text(
-                      month != null ? monthDisplay(month!) : "Seleccionar Mes"),
-                ),
-                const SizedBox(height: 20),
-                // Campo de Email
-                _buildTextField(
-                  label: "Mes de Consumo",
-                  hint: "",
-                  icon: Icons.calendar_month,
-                  validator: (value) =>
-                      value!.contains('-') ? null : "Ingresa un mes válido",
-                ),
-                SizedBox(height: 20),
-
-                // Campo de Password
-                _buildTextField(
-                  label: "Consumo Actual",
-                  hint: "50",
-                  icon: Icons.safety_check,
-                  isPassword: false,
-                  obscureText: _obscureText,
-                  validator: (value) =>
-                      value!.length < 6 ? "Mínimo 6 caracteres" : null,
-                ),
-
-                const SizedBox(height: 40),
-
-                // Botón Moderno
-
-                SizedBox(height: 20),
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 55,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF4361EE),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
-                      elevation: 0,
-                    ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // Lógica de éxito
-                      }
-                    },
-                    child: const Text("Registrar",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
-                  ),
-                ),
+                _buildMesField(),
+                const SizedBox(height: 16),
+                _buildConsumoActualField(),
+                const SizedBox(height: 16),
+                _buildLecturaAnteriorSwitch(),
+                const SizedBox(height: 24),
+                _buildSubmitButton(state, notifier),
               ],
             ),
           ),
@@ -130,56 +80,86 @@ class RegistroConsumoPage extends ConsumerWidget {
     );
   }
 
-  // Widget reutilizable para mantener el código limpio
-  Widget _buildTextField({
-    required String label,
-    required String hint,
-    required IconData icon,
-    bool isPassword = false,
-    bool obscureText = false,
-    VoidCallback? togglePassword,
-    String? Function(String?)? validator,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: TextStyle(
-                fontWeight: FontWeight.w600, color: Color(0xFF1A1A2E))),
-        SizedBox(height: 8),
-        TextFormField(
-          obscureText: obscureText,
-          validator: validator,
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: Icon(icon, color: Color(0xFF4361EE)),
-            suffixIcon: isPassword
-                ? IconButton(
-                    icon: Icon(
-                        obscureText ? Icons.visibility : Icons.visibility_off),
-                    onPressed: togglePassword)
-                : null,
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.grey[200]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Color(0xFF4361EE), width: 2),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.redAccent),
-            ),
-          ),
-        ),
-      ],
+  Widget _buildMesField() {
+    return TextFormField(
+      controller: _mesController,
+      decoration: const InputDecoration(
+        labelText: 'Mes (YYYY-MM)',
+        border: OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Ingrese el mes';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildConsumoActualField() {
+    return TextFormField(
+      controller: _consumoActualController,
+      keyboardType: TextInputType.number,
+      decoration: const InputDecoration(
+        labelText: 'Consumo Actual',
+        border: OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Ingrese el consumo actual';
+        }
+        if (int.tryParse(value) == null) {
+          return 'Debe ser un número';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildLecturaAnteriorSwitch() {
+    return SwitchListTile(
+      title: const Text('Habilitar lectura anterior'),
+      value: _habilitarLecturaAnterior,
+      onChanged: (value) {
+        setState(() {
+          _habilitarLecturaAnterior = value;
+        });
+      },
+    );
+  }
+
+  Widget _buildSubmitButton(
+    RegistroconsumoState state,
+    RegistroconsumoNotifier notifier,
+  ) {
+    return SizedBox(
+      height: 48,
+      child: ElevatedButton(
+        onPressed: state.status == RegistroStatus.loading
+            ? null
+            : () {
+                if (!_formKey.currentState!.validate()) return;
+
+                /// 🔒 Valores seguros (NUNCA null)
+                final int consumoActual =
+                    int.tryParse(_consumoActualController.text) ?? 0;
+
+                final int lecturaAnterior = _habilitarLecturaAnterior ? 0 : 0;
+                // si luego traes lectura real, aquí la cambias
+
+                notifier.registroConsumo(
+                  widget.conexionId,
+                  _mesController.text,
+                  consumoActual,
+                  lecturaAnterior,
+                  _fotoBase64,
+                  _habilitarLecturaAnterior,
+                );
+              },
+        child: state.status == RegistroStatus.loading
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Text('Guardar Consumo'),
+      ),
     );
   }
 }
