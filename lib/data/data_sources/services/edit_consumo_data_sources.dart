@@ -3,10 +3,11 @@ import 'package:app_lecturador/domain/entities/registro_consumo.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class RegistroConsumoRemoteDataSource {
-  final String url = "http://10.57.225.77:8000/api/consumos/store";
+class EditConsumoRemoteDataSource {
+  final String url = "http://10.57.225.77:8000/api/consumos/update";
 
-  Future<RegistroConsumo> registrarConsumo({
+  Future<RegistroConsumo> editConsumo({
+    required int idConsumo,
     required int conexionId,
     required String mes,
     required int consumoActual,
@@ -23,8 +24,8 @@ class RegistroConsumoRemoteDataSource {
     }
     // token
 
-    final response = await http.post(
-      Uri.parse(url),
+    final response = await http.put(
+      Uri.parse('$url/$idConsumo'),
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
@@ -42,7 +43,7 @@ class RegistroConsumoRemoteDataSource {
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       final error = jsonDecode(response.body);
-      throw Exception(error['mensaje'] ?? 'Error al registrar consumo');
+      throw Exception(error['mensaje'] ?? 'Error al actualizar consumo');
     }
 
     final decoded = jsonDecode(response.body);

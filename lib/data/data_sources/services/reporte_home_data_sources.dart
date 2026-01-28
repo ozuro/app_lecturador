@@ -9,7 +9,7 @@ class ReporteHomeRemoteDataSource {
     final token = prefs.getString('token');
 
     final response = await http.get(
-      Uri.parse('http://10.147.38.151:8000/api/consumos/reporte_conexiones'),
+      Uri.parse('http://10.57.225.77:8000/api/consumos/reporte_conexiones'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

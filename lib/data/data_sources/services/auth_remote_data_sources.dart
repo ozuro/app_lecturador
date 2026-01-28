@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AuthRemoteDataSource {
-  final String loginUrl = "http://10.147.38.151:8000/api/api_login";
+  final String loginUrl = "http://10.57.225.77:8000/api/api_login";
 
   Future<String> login(String email, String password) async {
     final response = await http.post(
