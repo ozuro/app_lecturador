@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:app_lecturador/core/storage/config/api_config.dart';
 import 'package:app_lecturador/domain/entities/conexion_entities.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 // tu modelo de consumo
 
 class ConsumosRemoteDataSource {
-  final String baseUrl = 'http://10.57.225.77:8000/api/consumos/index';
+  final String baseUrl = '${ApiConfig.baseUrl}/api/consumos/index';
 
   Future<List<Conexion>> getConexiones({
     String month = "2025-12",

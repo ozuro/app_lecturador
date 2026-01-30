@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'package:app_lecturador/core/storage/config/api_config.dart';
 import 'package:app_lecturador/domain/entities/registro_consumo.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditConsumoRemoteDataSource {
-  final String url = "http://10.57.225.77:8000/api/consumos/update";
+  final String url = "${ApiConfig.baseUrl}/api/consumos/update";
 
   Future<RegistroConsumo> editConsumo({
     required int idConsumo,

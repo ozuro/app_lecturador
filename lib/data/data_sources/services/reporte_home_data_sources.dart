@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app_lecturador/core/storage/config/api_config.dart';
 import 'package:app_lecturador/domain/entities/reporte_entities.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,7 +10,7 @@ class ReporteHomeRemoteDataSource {
     final token = prefs.getString('token');
 
     final response = await http.get(
-      Uri.parse('http://10.57.225.77:8000/api/consumos/reporte_conexiones'),
+      Uri.parse('${ApiConfig.baseUrl}/api/consumos/reporte_conexiones'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
