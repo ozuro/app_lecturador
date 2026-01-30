@@ -1,6 +1,6 @@
-import 'package:app_lecturador/presentation/providers/registro_consumo/registroConsumo_notifier.dart';
-import 'package:app_lecturador/presentation/providers/registro_consumo/registroConsumo_provider.dart';
-import 'package:app_lecturador/presentation/providers/registro_consumo/registroConsumo_state.dart';
+import 'package:app_lecturador/presentation/providers/consumo/registro_consumo/registroConsumo_notifier.dart';
+import 'package:app_lecturador/presentation/providers/consumo/registro_consumo/registroConsumo_provider.dart';
+import 'package:app_lecturador/presentation/providers/consumo/registro_consumo/registroConsumo_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

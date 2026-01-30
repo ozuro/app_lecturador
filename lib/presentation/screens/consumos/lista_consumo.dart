@@ -1,5 +1,6 @@
 import 'package:app_lecturador/presentation/providers/consumo/consumo_provider.dart';
 import 'package:app_lecturador/presentation/providers/consumo/consumo_state.dart';
+import 'package:app_lecturador/presentation/screens/consumos/editar_consumo.dart';
 import 'package:app_lecturador/presentation/screens/consumos/registro_consumo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -125,6 +126,9 @@ class _Content extends StatelessWidget {
                   Text('Consumo: ${conexion.consumoActualTexto}'),
                   const SizedBox(height: 4),
                   Text(
+                      'IdConsumo: ${consumo.isNotEmpty ? consumo.last.id.toString() : 'Sin lectura'}'),
+                  const SizedBox(height: 4),
+                  Text(
                     consumo.isNotEmpty
                         ? 'Estados: ${consumo.last.estadoConsumo}'
                         : 'Estados: Sin lectura',
@@ -165,8 +169,14 @@ class _Content extends StatelessWidget {
                           icon: const Icon(Icons.edit, color: Colors.orange),
                           tooltip: 'Editar consumo',
                           onPressed: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return EditConsumoPage(
+                                consumoId: consumo.last.id!,
+                                conexionId: conexion.id,
+                              );
+                            }));
                             // EDITAR
-                            // Navigator.push(...)
                           },
                         ),
                         IconButton(

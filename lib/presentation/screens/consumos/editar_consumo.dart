@@ -1,23 +1,27 @@
-import 'package:app_lecturador/presentation/providers/registro_consumo/registroConsumo_notifier.dart';
-import 'package:app_lecturador/presentation/providers/registro_consumo/registroConsumo_provider.dart';
-import 'package:app_lecturador/presentation/providers/registro_consumo/registroConsumo_state.dart';
+import 'package:app_lecturador/presentation/providers/consumo/editar_consumo/edit_notifier.dart';
+import 'package:app_lecturador/presentation/providers/consumo/editar_consumo/edit_provider.dart';
+import 'package:app_lecturador/presentation/providers/consumo/editar_consumo/edit_state.dart';
+import 'package:app_lecturador/presentation/providers/consumo/registro_consumo/registroConsumo_notifier.dart';
+import 'package:app_lecturador/presentation/providers/consumo/registro_consumo/registroConsumo_provider.dart';
+import 'package:app_lecturador/presentation/providers/consumo/registro_consumo/registroConsumo_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RegistroConsumoPage extends ConsumerStatefulWidget {
+class EditConsumoPage extends ConsumerStatefulWidget {
+  final int consumoId;
   final int conexionId;
 
-  const RegistroConsumoPage({
+  const EditConsumoPage({
     super.key,
+    required this.consumoId,
     required this.conexionId,
   });
 
   @override
-  ConsumerState<RegistroConsumoPage> createState() =>
-      _RegistroConsumoPageState();
+  ConsumerState<EditConsumoPage> createState() => _EditConsumoPageState();
 }
 
-class _RegistroConsumoPageState extends ConsumerState<RegistroConsumoPage> {
+class _EditConsumoPageState extends ConsumerState<EditConsumoPage> {
   final _formKey = GlobalKey<FormState>();
 
   final _mesController = TextEditingController();
@@ -35,18 +39,18 @@ class _RegistroConsumoPageState extends ConsumerState<RegistroConsumoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(registroConsumoNotifierProvider);
-    final notifier = ref.read(registroConsumoNotifierProvider.notifier);
+    final state = ref.watch(editConsumoNotifierProvider);
+    final notifier = ref.read(editConsumoNotifierProvider.notifier);
 
-    ref.listen(registroConsumoNotifierProvider, (previous, next) {
-      if (next.status == RegistroStatus.registrado) {
+    ref.listen(editConsumoNotifierProvider, (previous, next) {
+      if (next.status == EditStatus.actualizado) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Consumo registrado correctamente')),
+          const SnackBar(content: Text('Consumo actualizado correctamente')),
         );
         Navigator.pop(context);
       }
 
-      if (next.status == RegistroStatus.error) {
+      if (next.status == EditStatus.error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(next.errorMessage ?? 'Error desconocido')),
         );
@@ -58,7 +62,7 @@ class _RegistroConsumoPageState extends ConsumerState<RegistroConsumoPage> {
         title: const Text('Edit Consumo'),
       ),
       body: AbsorbPointer(
-        absorbing: state.status == RegistroStatus.loading,
+        absorbing: state.status == EditStatus.loading,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
@@ -129,13 +133,13 @@ class _RegistroConsumoPageState extends ConsumerState<RegistroConsumoPage> {
   }
 
   Widget _buildSubmitButton(
-    RegistroconsumoState state,
-    RegistroconsumoNotifier notifier,
+    EditconsumoState state,
+    EditConsumoNotifier notifier,
   ) {
     return SizedBox(
       height: 48,
       child: ElevatedButton(
-        onPressed: state.status == RegistroStatus.loading
+        onPressed: state.status == EditStatus.loading
             ? null
             : () {
                 if (!_formKey.currentState!.validate()) return;
@@ -147,7 +151,8 @@ class _RegistroConsumoPageState extends ConsumerState<RegistroConsumoPage> {
                 final int lecturaAnterior = _habilitarLecturaAnterior ? 0 : 0;
                 // si luego traes lectura real, aquí la cambias
 
-                notifier.registroConsumo(
+                notifier.editConsumo(
+                  widget.consumoId,
                   widget.conexionId,
                   _mesController.text,
                   consumoActual,
@@ -156,7 +161,7 @@ class _RegistroConsumoPageState extends ConsumerState<RegistroConsumoPage> {
                   _habilitarLecturaAnterior,
                 );
               },
-        child: state.status == RegistroStatus.loading
+        child: state.status == EditStatus.loading
             ? const CircularProgressIndicator(color: Colors.white)
             : const Text('Guardar Consumo'),
       ),
