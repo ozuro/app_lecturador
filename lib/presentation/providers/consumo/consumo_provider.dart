@@ -9,3 +9,6 @@ final consumoNotifierProvider =
   final repository = ref.watch(consumosRepositoryProvider);
   return ConsumoNotifier(repository);
 });
+
+// para buscador
+final consumoSearchProvider = StateProvider<String>((ref) => '');
