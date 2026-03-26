@@ -15,20 +15,17 @@ class EditConsumoImpl implements EditConsumoRepository {
       int consumoAnterior,
       String? foto,
       bool habilitarLecturaAnterior) async {
-    try {
-      if (idConsumo == null) {
-        throw Exception('idConsumo es requerido para editar');
-      }
-      await remote.editConsumo(
-          idConsumo: idConsumo,
-          conexionId: idConexion,
-          mes: mes,
-          consumoActual: consumoActual,
-          consumoAnterior: consumoAnterior,
-          foto: foto,
-          habilitarLecturaAnterior: habilitarLecturaAnterior);
-    } catch (e) {
-      throw Exception('Error al actualizar el consumo: $e');
+    if (idConsumo == null) {
+      throw Exception('idConsumo es requerido para editar');
     }
+    await remote.editConsumo(
+      idConsumo: idConsumo,
+      conexionId: idConexion,
+      mes: mes,
+      consumoActual: consumoActual,
+      consumoAnterior: consumoAnterior,
+      foto: foto,
+      habilitarLecturaAnterior: habilitarLecturaAnterior,
+    );
   }
 }
