@@ -1,22 +1,29 @@
 class Direccion {
-  final int id;
+  final int? id;
   final String nombre;
-  final String barrio;
-  final String distrito;
+  final String? barrio;
+  final String? distrito;
 
   Direccion({
-    required this.id,
+    this.id,
     required this.nombre,
-    required this.barrio,
-    required this.distrito,
+    this.barrio,
+    this.distrito,
   });
+
+  String get descripcionCorta {
+    final parts = [nombre, distrito]
+        .where((value) => value != null && value.trim().isNotEmpty)
+        .toList();
+    return parts.join(' - ');
+  }
 
   factory Direccion.fromJson(Map<String, dynamic> json) {
     return Direccion(
-      id: json['id'],
-      nombre: json['nombre'],
-      barrio: json['barrio'],
-      distrito: json['distrito'],
+      id: json['id'] as int?,
+      nombre: json['nombre']?.toString() ?? 'Sin dirección',
+      barrio: json['barrio']?.toString(),
+      distrito: json['distrito']?.toString(),
     );
   }
 }

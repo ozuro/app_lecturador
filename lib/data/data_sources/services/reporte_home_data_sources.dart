@@ -17,14 +17,9 @@ class ReporteHomeRemoteDataSource {
       },
     );
 
-    print('API response: ${response.body}');
-
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      return ReporteHomeEntity(
-        cantidadConexiones: data['total conexiones activas'],
-      );
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      return ReporteHomeEntity.fromJson(data);
     } else {
       throw Exception('Error al cargar reporte home');
     }

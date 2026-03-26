@@ -1,19 +1,19 @@
-import 'package:app_lecturador/domain/entities/direccion_entites.dart';
-
 import 'cliente_entities.dart';
-
 import 'consumo_entities.dart';
+import 'direccion_entites.dart';
 
 class Conexion {
   final int id;
   final String? codigo;
   final String? tipoServicio;
   final String? estado;
-  final int medidor;
-
+  final bool medidor;
   final Cliente cliente;
   final Direccion direccion;
+  final Consumo? lectura;
   final List<Consumo> consumos;
+  final int consumoAnteriorSugerido;
+  final bool tieneLecturaRegistrada;
 
   Conexion({
     required this.id,
@@ -23,33 +23,63 @@ class Conexion {
     required this.medidor,
     required this.cliente,
     required this.direccion,
-    required this.consumos,
+    this.lectura,
+    this.consumos = const [],
+    this.consumoAnteriorSugerido = 0,
+    this.tieneLecturaRegistrada = false,
   });
-
-  // ===== GETTERS DE DOMINIO PARA LA UI =====
 
   String get nombreCompleto => cliente.nombreCompleto;
 
-  // String get direccionCompleta => direccion.direccionCompleta;
-
-  Consumo? get ultimoConsumo => consumos.isNotEmpty ? consumos.last : null;
+  Consumo? get ultimoConsumo {
+    if (lectura != null) {
+      return lectura;
+    }
+    if (consumos.isNotEmpty) {
+      return consumos.first;
+    }
+    return null;
+  }
 
   String get consumoActualTexto =>
       ultimoConsumo?.consumoActual?.toString() ?? 'Sin lectura';
 
-  // String get estadoConsumo => consumos.estadoConsumo ?? 'Desconocido';
+  String get estadoLecturaLabel =>
+      tieneLecturaRegistrada ? 'Lectura registrada' : 'Lectura pendiente';
+
+  String get estadoReciboLabel =>
+      ultimoConsumo?.estadoReciboLabel ?? 'Sin recibo';
 
   factory Conexion.fromJson(Map<String, dynamic> json) {
+    final lecturasJson = json['consumos'];
+    final consumos = lecturasJson is List
+        ? lecturasJson
+            .whereType<Map<String, dynamic>>()
+            .map(Consumo.fromJson)
+            .toList()
+        : <Consumo>[];
+
+    final lecturaJson = json['lectura'];
+    final lectura = lecturaJson is Map<String, dynamic>
+        ? Consumo.fromJson(lecturaJson)
+        : consumos.isNotEmpty
+            ? consumos.first
+            : null;
+
     return Conexion(
-      id: json['id'],
-      codigo: json['codigo'],
-      tipoServicio: json['tipo_servicio'],
-      estado: json['estado'],
-      medidor: json['medidor'],
-      cliente: Cliente.fromJson(json['cliente']),
-      direccion: Direccion.fromJson(json['direccion']),
-      consumos:
-          (json['consumos'] as List).map((e) => Consumo.fromJson(e)).toList(),
+      id: (json['conexion_id'] ?? json['id']) as int,
+      codigo: json['codigo']?.toString(),
+      tipoServicio: json['tipo_servicio']?.toString(),
+      estado: json['estado']?.toString(),
+      medidor: json['medidor'] == true || json['medidor'] == 1,
+      cliente: Cliente.fromJson(json['cliente'] as Map<String, dynamic>),
+      direccion: Direccion.fromJson(json['direccion'] as Map<String, dynamic>),
+      lectura: lectura,
+      consumos: consumos,
+      consumoAnteriorSugerido: (json['consumo_anterior_sugerido'] ?? 0) as int,
+      tieneLecturaRegistrada: json['tiene_lectura_registrada'] == true ||
+          lectura != null ||
+          consumos.isNotEmpty,
     );
   }
 }

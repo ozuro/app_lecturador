@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegistroConsumoRemoteDataSource {
-  final String url = "${ApiConfig.baseUrl}:8000/api/consumos/store";
+  final String url = "${ApiConfig.baseUrl}/api/consumos/store";
 
   Future<RegistroConsumo> registrarConsumo({
     required int conexionId,
@@ -46,7 +46,9 @@ class RegistroConsumoRemoteDataSource {
       throw Exception(error['mensaje'] ?? 'Error al registrar consumo');
     }
 
-    final decoded = jsonDecode(response.body);
-    return RegistroConsumo.fromJson(decoded['consumo']);
+    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+    return RegistroConsumo.fromJson(
+      decoded['data'] as Map<String, dynamic>,
+    );
   }
 }

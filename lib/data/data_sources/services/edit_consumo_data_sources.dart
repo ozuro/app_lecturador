@@ -47,7 +47,9 @@ class EditConsumoRemoteDataSource {
       throw Exception(error['mensaje'] ?? 'Error al actualizar consumo');
     }
 
-    final decoded = jsonDecode(response.body);
-    return RegistroConsumo.fromJson(decoded['consumo']);
+    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+    return RegistroConsumo.fromJson(
+      decoded['data'] as Map<String, dynamic>,
+    );
   }
 }

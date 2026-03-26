@@ -10,7 +10,7 @@ class ConsumoNotifier extends StateNotifier<ConsumoState> {
   Future<void> loadConsumos({
     required String year,
     required String month,
-    required String direccionId,
+    String? direccionId,
   }) async {
     final formattedMonth = '$year-${month.padLeft(2, '0')}';
 
@@ -18,6 +18,7 @@ class ConsumoNotifier extends StateNotifier<ConsumoState> {
       isLoading: true,
       error: null,
       month: formattedMonth,
+      direccionId: direccionId,
     );
 
     try {
@@ -28,7 +29,12 @@ class ConsumoNotifier extends StateNotifier<ConsumoState> {
 
       state = state.copyWith(
         isLoading: false,
-        data: result,
+        data: result.conexiones,
+        direcciones: result.direcciones,
+        totalConexiones: result.total,
+        lecturasRegistradas: result.conLectura,
+        lecturasFaltantes: result.sinLectura,
+        month: result.month.isNotEmpty ? result.month : formattedMonth,
       );
     } catch (e) {
       state = state.copyWith(
@@ -36,5 +42,34 @@ class ConsumoNotifier extends StateNotifier<ConsumoState> {
         error: e.toString(),
       );
     }
+  }
+
+  Future<void> buscarPorDni(String dni) async {
+    state = state.copyWith(
+      isSearching: true,
+      clearSearchError: true,
+      clearSearchResult: true,
+    );
+
+    try {
+      final result = await repository.buscarPorDni(dni);
+      state = state.copyWith(
+        isSearching: false,
+        searchResult: result,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isSearching: false,
+        searchError: e.toString(),
+      );
+    }
+  }
+
+  void clearSearch() {
+    state = state.copyWith(
+      clearSearchError: true,
+      clearSearchResult: true,
+      isSearching: false,
+    );
   }
 }
