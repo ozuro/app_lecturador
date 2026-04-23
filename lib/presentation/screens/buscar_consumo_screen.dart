@@ -25,67 +25,122 @@ class _BuscarConsumoScreenState extends ConsumerState<BuscarConsumoScreen> {
     final result = state.searchResult;
 
     return Container(
-      color: const Color(0xFFF4F7FB),
+      color: const Color(0xFFF4F8FB),
       child: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: const Color(0xFFE3EBF3)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(10),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Buscar lecturas o consumos',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEAF2FF),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: const Icon(
+                        Icons.manage_search_rounded,
+                        color: Color(0xFF0F4C81),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Buscar lecturas por cliente',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          SizedBox(height: 6),
+                          Text(
+                            'Ingresa el DNI para revisar conexiones y el historial de lecturas disponible en la API.',
+                            style: TextStyle(
+                              height: 1.45,
+                              color: Color(0xFF526074),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Ingresa el DNI del cliente para ver sus conexiones y el historial de lecturas disponible en la API.',
-                  style: TextStyle(height: 1.45, color: Colors.black54),
-                ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
                 TextField(
                   controller: _dniController,
                   keyboardType: TextInputType.number,
                   maxLength: 8,
                   decoration: InputDecoration(
-                    hintText: 'Ingrese DNI',
+                    hintText: 'Ingresa DNI',
                     prefixIcon: const Icon(Icons.badge_outlined),
                     suffixIcon: IconButton(
                       onPressed: () {
                         _dniController.clear();
-                        ref.read(consumoNotifierProvider.notifier).clearSearch();
+                        ref
+                            .read(consumoNotifierProvider.notifier)
+                            .clearSearch();
                       },
                       icon: const Icon(Icons.close_rounded),
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                FilledButton.icon(
-                  onPressed: state.isSearching
-                      ? null
-                      : () {
-                          if (_dniController.text.trim().length != 8) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('El DNI debe tener 8 dígitos.'),
-                              ),
-                            );
-                            return;
-                          }
-                          ref
-                              .read(consumoNotifierProvider.notifier)
-                              .buscarPorDni(_dniController.text.trim());
-                        },
-                  icon: const Icon(Icons.search_rounded),
-                  label: const Text('Buscar'),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: state.isSearching
+                          ? null
+                          : () {
+                              if (_dniController.text.trim().length != 8) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('El DNI debe tener 8 digitos.'),
+                                  ),
+                                );
+                                return;
+                              }
+                              ref
+                                  .read(consumoNotifierProvider.notifier)
+                                  .buscarPorDni(_dniController.text.trim());
+                            },
+                      icon: const Icon(Icons.search_rounded),
+                      label: const Text('Buscar cliente'),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        _dniController.clear();
+                        ref
+                            .read(consumoNotifierProvider.notifier)
+                            .clearSearch();
+                      },
+                      icon: const Icon(Icons.restart_alt_rounded),
+                      label: const Text('Limpiar'),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -95,7 +150,7 @@ class _BuscarConsumoScreenState extends ConsumerState<BuscarConsumoScreen> {
             const Center(child: CircularProgressIndicator())
           else if (state.searchError != null)
             _SearchMessage(
-              title: 'No se pudo completar la búsqueda',
+              title: 'No se pudo completar la busqueda',
               description: state.searchError!,
               color: const Color(0xFFC44536),
             )
@@ -106,78 +161,109 @@ class _BuscarConsumoScreenState extends ConsumerState<BuscarConsumoScreen> {
               totalConnections: result.conexiones.length,
             ),
             const SizedBox(height: 16),
-            ...result.conexiones.map((conexion) {
-              return Card(
+            ...result.conexiones.map(
+              (conexion) => Container(
                 margin: const EdgeInsets.only(bottom: 12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Conexión ${conexion.codigo ?? conexion.id}',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                          Chip(label: Text(conexion.estadoLecturaLabel)),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        conexion.direccion.descripcionCorta,
-                        style: const TextStyle(color: Colors.black54),
-                      ),
-                      const SizedBox(height: 14),
-                      if (conexion.consumos.isEmpty)
-                        const Text('No hay lecturas registradas para esta conexión.')
-                      else
-                        ...conexion.consumos.map(
-                          (consumo) => Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF8FAFD),
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: const Color(0xFFE2EAF4)),
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Periodo ${consumo.mes ?? '-'}',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Consumo: ${consumo.consumoActual ?? 0} | Recibo: ${consumo.estadoReciboLabel}',
-                                        style: const TextStyle(
-                                          color: Colors.black54,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: const Color(0xFFE2EAF4)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(8),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Conexion ${conexion.codigo ?? conexion.id}',
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800,
                                 ),
-                                Chip(label: Text(consumo.estadoLecturaLabel)),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                conexion.direccion.descripcionCorta,
+                                style: const TextStyle(
+                                  color: Color(0xFF526074),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                    ],
-                  ),
+                        Chip(label: Text(conexion.estadoLecturaLabel)),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    if (conexion.consumos.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFD),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: const Text(
+                          'No hay lecturas registradas para esta conexion.',
+                          style: TextStyle(
+                            color: Color(0xFF526074),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      )
+                    else
+                      ...conexion.consumos.map(
+                        (consumo) => Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8FAFD),
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: const Color(0xFFE2EAF4)),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Periodo ${consumo.mes ?? '-'}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Consumo: ${consumo.consumoActual ?? 0} | Recibo: ${consumo.estadoReciboLabel}',
+                                      style: const TextStyle(
+                                        color: Color(0xFF526074),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Chip(label: Text(consumo.estadoLecturaLabel)),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-              );
-            }),
+              ),
+            ),
           ],
         ],
       ),
@@ -203,11 +289,12 @@ class _SearchHeader extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE2EAF4)),
       ),
       child: Row(
         children: [
           const CircleAvatar(
-            radius: 24,
+            radius: 26,
             backgroundColor: Color(0xFFEAF2FF),
             child: Icon(Icons.person_outline_rounded, color: Color(0xFF0F4C81)),
           ),
@@ -220,11 +307,14 @@ class _SearchHeader extends StatelessWidget {
                   fullName,
                   style: const TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text('DNI: $dni'),
+                Text(
+                  'DNI: $dni',
+                  style: const TextStyle(color: Color(0xFF526074)),
+                ),
               ],
             ),
           ),

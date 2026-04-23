@@ -52,10 +52,14 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
   Widget build(BuildContext context) {
     final state = ref.watch(consumoNotifierProvider);
     final search = ref.watch(consumoSearchProvider).toLowerCase();
+    final onlyPending = ref.watch(consumoOnlyPendingProvider);
     final filteredData = state.data.where((conexion) {
       final cliente = conexion.cliente.nombreCompleto.toLowerCase();
       final direccion = conexion.direccion.nombre.toLowerCase();
-      return cliente.contains(search) || direccion.contains(search);
+      final matchesSearch =
+          cliente.contains(search) || direccion.contains(search);
+      final matchesPending = !onlyPending || !conexion.tieneLecturaRegistrada;
+      return matchesSearch && matchesPending;
     }).toList();
 
     return Container(
@@ -64,15 +68,15 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
         padding: const EdgeInsets.all(20),
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(12),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
+                  color: Colors.black.withAlpha(10),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),
@@ -80,9 +84,11 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      width: 40,
+                      height: 40,
                       decoration: const BoxDecoration(
                         color: Color(0xFFEAF2FF),
                         shape: BoxShape.circle,
@@ -90,9 +96,10 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
                       child: const Icon(
                         Icons.tune_rounded,
                         color: Color(0xFF0F4C81),
+                        size: 18,
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 10),
                     const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,21 +107,25 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
                           Text(
                             'Control de lecturas',
                             style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          SizedBox(height: 2),
                           Text(
-                            'Consulta el periodo, filtra por direccion y revisa el avance de lecturas.',
-                            style: TextStyle(height: 1.4),
+                            'Filtra y revisa el avance.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              height: 1.25,
+                              color: Color(0xFF526074),
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 12),
                 _MonthSelector(
                   selectedMonth: state.month,
                   onChanged: (year, month) {
@@ -125,12 +136,16 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
                         );
                   },
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 DropdownButtonFormField<String?>(
-                  value: state.direccionId,
+                  key: ValueKey(state.direccionId),
+                  initialValue: state.direccionId,
+                  isDense: true,
                   decoration: const InputDecoration(
-                    hintText: 'Seleccione una direccion',
-                    prefixIcon: Icon(Icons.location_city_outlined),
+                    hintText: 'Todas las direcciones',
+                    prefixIcon: Icon(Icons.location_city_outlined, size: 18),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                   ),
                   items: [
                     const DropdownMenuItem<String?>(
@@ -153,13 +168,18 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
                         );
                   },
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 TextField(
                   decoration: InputDecoration(
                     hintText: 'Buscar cliente o direccion',
-                    prefixIcon: const Icon(Icons.search),
+                    isDense: true,
+                    prefixIcon: const Icon(Icons.search, size: 18),
                     fillColor: const Color(0xFFF7FAFD),
                     filled: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 14,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
@@ -169,10 +189,10 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
                     ref.read(consumoSearchProvider.notifier).state = value;
                   },
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: 6,
+                  runSpacing: 6,
                   children: [
                     _StatusChip(
                       icon: Icons.calendar_today_rounded,
@@ -190,6 +210,17 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
                           ? 'API conectada'
                           : 'Revisar conexion',
                     ),
+                    if (onlyPending)
+                      GestureDetector(
+                        onTap: () {
+                          ref.read(consumoOnlyPendingProvider.notifier).state =
+                              false;
+                        },
+                        child: const _StatusChip(
+                          icon: Icons.filter_alt_off_rounded,
+                          label: 'Solo faltantes',
+                        ),
+                      ),
                   ],
                 ),
               ],
@@ -250,23 +281,33 @@ class _MonthSelector extends StatelessWidget {
     final month = selectedMonth.substring(5);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: const Color(0xFFF5F9FF),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFD6E6FF)),
       ),
       child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
+        spacing: 10,
+        runSpacing: 10,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          const Icon(Icons.calendar_month_rounded, color: Color(0xFF2F80ED)),
+          const Icon(
+            Icons.calendar_month_rounded,
+            color: Color(0xFF2F80ED),
+            size: 18,
+          ),
           DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: year,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF243447),
+              ),
               items: ['2024', '2025', '2026']
-                  .map((item) => DropdownMenuItem(value: item, child: Text(item)))
+                  .map((item) =>
+                      DropdownMenuItem(value: item, child: Text(item)))
                   .toList(),
               onChanged: (value) {
                 if (value != null) {
@@ -278,6 +319,11 @@ class _MonthSelector extends StatelessWidget {
           DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: month,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF243447),
+              ),
               items: List.generate(12, (index) {
                 final value = (index + 1).toString().padLeft(2, '0');
                 return DropdownMenuItem(
@@ -294,11 +340,14 @@ class _MonthSelector extends StatelessWidget {
           ),
           Chip(
             backgroundColor: const Color(0xFF2F80ED),
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             label: Text(
               '${_monthName(month)} $year',
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
+                fontSize: 12,
               ),
             ),
           ),
@@ -356,107 +405,268 @@ class _Content extends StatelessWidget {
       return const Center(child: Text('No se encontraron resultados'));
     }
 
-    return ListView.builder(
+    return ListView.separated(
       itemCount: filteredData.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (_, index) {
         final conexion = filteredData[index];
-        final lectura = conexion.lectura;
 
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFE6EDF5)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(8),
-                blurRadius: 14,
-                offset: const Offset(0, 6),
-              ),
-            ],
+        return _ConsumoListItem(
+          conexion: conexion,
+          currentMonth: state.month,
+          onRefresh: onRefresh,
+        );
+      },
+    );
+  }
+}
+
+class _ConsumoListItem extends StatefulWidget {
+  const _ConsumoListItem({
+    required this.conexion,
+    required this.currentMonth,
+    required this.onRefresh,
+  });
+
+  final Conexion conexion;
+  final String currentMonth;
+  final Future<void> Function() onRefresh;
+
+  @override
+  State<_ConsumoListItem> createState() => _ConsumoListItemState();
+}
+
+class _ConsumoListItemState extends State<_ConsumoListItem> {
+  bool _expanded = false;
+
+  Future<void> _openRegistro() async {
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RegistroConsumoPage(
+          conexionId: widget.conexion.id,
+          initialMonth: widget.currentMonth,
+          conexion: widget.conexion,
+        ),
+      ),
+    );
+
+    if (saved == true && mounted) {
+      await widget.onRefresh();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('La lista de consumos se actualizo correctamente.'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _openEdicion() async {
+    final lectura = widget.conexion.lectura;
+    if (lectura?.id == null) {
+      return;
+    }
+
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditConsumoPage(
+          consumoId: lectura!.id!,
+          conexionId: widget.conexion.id,
+          initialMonth: lectura.mes ?? widget.currentMonth,
+          conexion: widget.conexion,
+        ),
+      ),
+    );
+
+    if (saved == true && mounted) {
+      await widget.onRefresh();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('La lectura editada se actualizo correctamente.'),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final conexion = widget.conexion;
+    final lectura = conexion.lectura;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE3EBF3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(7),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
           ),
-          child: Column(
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 46,
-                    height: 46,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEAF2FF),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Icon(
-                      Icons.person_outline_rounded,
-                      color: Color(0xFF0F4C81),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          conexion.cliente.nombreCompleto,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${conexion.cliente.documentoLabel}: ${conexion.cliente.documentoPrincipal}',
-                          style: const TextStyle(color: Colors.black54),
-                        ),
-                        const SizedBox(height: 6),
-                        _SoftLabel(
-                          icon: Icons.badge_outlined,
-                          label: conexion.cliente.tipoPersonaLabel,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  _ReadingStatusBadge(
-                    isRegistered: conexion.tieneLecturaRegistrada,
-                    label: conexion.estadoLecturaLabel,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
               Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF7FAFD),
-                  borderRadius: BorderRadius.circular(16),
+                  color: const Color(0xFFEAF2FF),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                child: Row(
+                child: const Icon(
+                  Icons.person_outline_rounded,
+                  color: Color(0xFF0F4C81),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      size: 18,
-                      color: Color(0xFF6B7280),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        conexion.direccion.descripcionCorta,
-                        style: const TextStyle(
-                          color: Color(0xFF4B5563),
-                          height: 1.35,
-                        ),
+                    Text(
+                      conexion.cliente.nombreCompleto,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        height: 1.25,
                       ),
+                    ),
+                    const SizedBox(height: 6),
+                    _ReadingStatusBadge(
+                      isRegistered: conexion.tieneLecturaRegistrada,
+                      label: conexion.tieneLecturaRegistrada
+                          ? 'Lectura registrada'
+                          : 'Pendiente de registro',
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 14),
-              Wrap(
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF7FAFD),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.location_on_outlined,
+                  size: 18,
+                  color: Color(0xFF6B7280),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    conexion.direccion.descripcionCorta,
+                    style: const TextStyle(
+                      color: Color(0xFF4B5563),
+                      fontWeight: FontWeight.w600,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (!conexion.tieneLecturaRegistrada) ...[
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _openRegistro,
+                icon: const Icon(Icons.add_circle_outline_rounded, size: 20),
+                label: const Text('Registrar lectura'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF2F80ED),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                ),
+              ),
+            ),
+          ] else ...[
+            Row(
+              children: [
+                OutlinedButton.icon(
+                  onPressed: _openEdicion,
+                  icon: const Icon(Icons.edit_outlined, size: 16),
+                  label: const Text('Editar'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFFE67E22),
+                    side: const BorderSide(color: Color(0xFFF1C58F)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    textStyle: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  'Consumo: ${lectura?.consumoActual ?? 0}',
+                  style: const TextStyle(
+                    color: Color(0xFF526074),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 6),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  _expanded = !_expanded;
+                });
+              },
+              icon: Icon(
+                _expanded
+                    ? Icons.keyboard_arrow_up_rounded
+                    : Icons.keyboard_arrow_down_rounded,
+                size: 18,
+              ),
+              label: Text(_expanded ? 'Ocultar datos' : 'Ver mas'),
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF0F4C81),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                textStyle: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ),
+          if (_expanded) ...[
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFD),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Wrap(
                 spacing: 10,
                 runSpacing: 10,
                 children: [
@@ -466,146 +676,24 @@ class _Content extends StatelessWidget {
                     icon: Icons.pin_outlined,
                   ),
                   _InfoPanel(
-                    label: 'Estado recibo',
+                    label: 'Recibo',
                     value: conexion.estadoReciboLabel,
                     icon: Icons.receipt_long_outlined,
                   ),
                   _InfoPanel(
                     label: 'Periodo',
-                    value: lectura?.mes ?? state.month,
+                    value: lectura?.mes ?? widget.currentMonth,
                     icon: Icons.calendar_today_outlined,
                   ),
                   _InfoPanel(
-                    label: 'Consumo actual',
-                    value: lectura?.consumoActual?.toString() ?? 'Sin lectura',
-                    icon: Icons.speed_rounded,
+                    label: 'Documento',
+                    value: conexion.cliente.documentoPrincipal,
+                    icon: Icons.badge_outlined,
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _showDetailDialog(context, conexion, lectura),
-                      icon: const Icon(Icons.visibility_outlined, size: 18),
-                      label: const Text('Ver detalle'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF0F4C81),
-                        side: const BorderSide(color: Color(0xFFD7E3F3)),
-                        padding: const EdgeInsets.symmetric(vertical: 13),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _PrimaryActionButton(
-                      icon: !conexion.tieneLecturaRegistrada
-                          ? Icons.add_rounded
-                          : Icons.edit_outlined,
-                      label: !conexion.tieneLecturaRegistrada
-                          ? 'Registrar lectura'
-                          : 'Editar lectura',
-                      color: !conexion.tieneLecturaRegistrada
-                          ? const Color(0xFF2F80ED)
-                          : const Color(0xFFE67E22),
-                      onTap: !conexion.tieneLecturaRegistrada
-                          ? () async {
-                              final saved = await Navigator.push<bool>(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => RegistroConsumoPage(
-                                    conexionId: conexion.id,
-                                    initialMonth: state.month,
-                                    conexion: conexion,
-                                  ),
-                                ),
-                              );
-                              if (saved == true && context.mounted) {
-                                await onRefresh();
-                                if (!context.mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'La lista de consumos se actualizo correctamente.',
-                                    ),
-                                  ),
-                                );
-                              }
-                            }
-                          : () {
-                              Navigator.push<bool>(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => EditConsumoPage(
-                                    consumoId: lectura!.id!,
-                                    conexionId: conexion.id,
-                                    initialMonth: lectura.mes ?? state.month,
-                                    conexion: conexion,
-                                  ),
-                                ),
-                              ).then((saved) async {
-                                if (saved == true && context.mounted) {
-                                  await onRefresh();
-                                  if (!context.mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'La lectura editada se actualizo correctamente.',
-                                      ),
-                                    ),
-                                  );
-                                }
-                              });
-                            },
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showDetailDialog(
-    BuildContext context,
-    Conexion conexion,
-    dynamic lectura,
-  ) {
-    showDialog<void>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Detalle ${conexion.codigo ?? conexion.id}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Cliente: ${conexion.cliente.nombreCompleto}'),
-            Text(
-              '${conexion.cliente.documentoLabel}: ${conexion.cliente.documentoPrincipal}',
-            ),
-            Text('Tipo: ${conexion.cliente.tipoPersonaLabel}'),
-            Text('Direccion: ${conexion.direccion.descripcionCorta}'),
-            Text('Estado conexion: ${conexion.estado ?? '-'}'),
-            Text('Estado lectura: ${conexion.estadoLecturaLabel}'),
-            Text('Estado recibo: ${conexion.estadoReciboLabel}'),
-            Text('Periodo: ${lectura?.mes ?? state.month}'),
-            Text('Consumo actual: ${lectura?.consumoActual ?? 0}'),
-            Text(
-              'Consumo anterior: ${lectura?.consumoAnterior ?? conexion.consumoAnteriorSugerido}',
             ),
           ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cerrar'),
-          ),
         ],
       ),
     );
@@ -626,17 +714,17 @@ class _InfoPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 150,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      width: 132,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFD),
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: const Color(0xFF6B7280)),
-          const SizedBox(width: 10),
+          Icon(icon, size: 16, color: const Color(0xFF6B7280)),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -644,15 +732,15 @@ class _InfoPanel extends StatelessWidget {
                 Text(
                   label,
                   style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.black54,
+                    fontSize: 11,
+                    color: Color(0xFF6B7280),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -660,36 +748,6 @@ class _InfoPanel extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _PrimaryActionButton extends StatelessWidget {
-  const _PrimaryActionButton({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return FilledButton.icon(
-      onPressed: onTap,
-      icon: Icon(icon, size: 18),
-      label: Text(label, textAlign: TextAlign.center),
-      style: FilledButton.styleFrom(
-        backgroundColor: color,
-        padding: const EdgeInsets.symmetric(vertical: 13),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
       ),
     );
   }
@@ -707,22 +765,22 @@ class _StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         color: const Color(0xFFEFF4FA),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: const Color(0xFF0F4C81)),
-          const SizedBox(width: 6),
+          Icon(icon, size: 12, color: const Color(0xFF0F4C81)),
+          const SizedBox(width: 5),
           Text(
             label,
             style: const TextStyle(
               color: Color(0xFF0F4C81),
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              fontSize: 11,
             ),
           ),
         ],
@@ -747,40 +805,40 @@ class _CompactSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 140, maxWidth: 180),
+      constraints: const BoxConstraints(minWidth: 112, maxWidth: 148),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
                 color: accentColor.withAlpha(28),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(10),
               ),
               alignment: Alignment.center,
               child: Text(
                 value,
                 style: TextStyle(
                   color: accentColor,
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: FontWeight.w800,
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 title,
                 style: const TextStyle(
                   color: Color(0xFF243447),
                   fontWeight: FontWeight.w700,
-                  fontSize: 13,
+                  fontSize: 12,
                   height: 1.2,
                 ),
               ),
@@ -803,25 +861,23 @@ class _ReadingStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background = isRegistered
-        ? const Color(0xFFE8F7EF)
-        : const Color(0xFFFFECE9);
-    final foreground = isRegistered
-        ? const Color(0xFF1F9D68)
-        : const Color(0xFFC44536);
+    final background =
+        isRegistered ? const Color(0xFFE8F7EF) : const Color(0xFFFFECE9);
+    final foreground =
+        isRegistered ? const Color(0xFF1F9D68) : const Color(0xFFC44536);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             isRegistered ? Icons.check_circle_rounded : Icons.schedule_rounded,
-            size: 16,
+            size: 14,
             color: foreground,
           ),
           const SizedBox(width: 6),
@@ -830,42 +886,11 @@ class _ReadingStatusBadge extends StatelessWidget {
             style: TextStyle(
               color: foreground,
               fontWeight: FontWeight.w700,
-              fontSize: 12,
+              fontSize: 11,
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _SoftLabel extends StatelessWidget {
-  const _SoftLabel({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 14, color: const Color(0xFF0F4C81)),
-        const SizedBox(width: 5),
-        Flexible(
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF0F4C81),
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

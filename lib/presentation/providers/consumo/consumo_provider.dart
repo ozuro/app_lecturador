@@ -12,3 +12,4 @@ final consumoNotifierProvider =
 
 // para buscador
 final consumoSearchProvider = StateProvider<String>((ref) => '');
+final consumoOnlyPendingProvider = StateProvider<bool>((ref) => false);

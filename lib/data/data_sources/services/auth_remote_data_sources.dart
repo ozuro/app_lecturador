@@ -6,17 +6,22 @@ class AuthRemoteDataSource {
   final String loginUrl = "${ApiConfig.baseUrl}/api/api_login";
 
   Future<String> login(String email, String password) async {
-    final response = await http.post(
-      Uri.parse(loginUrl),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"email": email, "password": password}),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse(loginUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email, "password": password}),
+      );
 
-    if (response.statusCode != 200) {
-      throw Exception('Credenciales incorrectas');
+      if (response.statusCode != 200) {
+        throw Exception('Credenciales incorrectas');
+      }
+
+      final data = jsonDecode(response.body);
+      return data['data']['token'];
+    } catch (e) {
+      print(e.toString());
+      rethrow;
     }
-
-    final data = jsonDecode(response.body);
-    return data['data']['token'];
   }
 }
