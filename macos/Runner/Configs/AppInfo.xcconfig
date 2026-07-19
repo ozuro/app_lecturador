@@ -8,7 +8,7 @@
 PRODUCT_NAME = app_lecturador
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.appLecturador
+PRODUCT_BUNDLE_IDENTIFIER = com.ozuro.jass.control
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2024 com.example. All rights reserved.

@@ -1,9 +1,20 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id "com.android.application"
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
 }
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file("local.properties")
@@ -24,7 +35,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace = "com.example.app_lecturador"
+    namespace = "com.ozuro.jass.control"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -39,7 +50,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.app_lecturador"
+        applicationId = "com.ozuro.jass.control"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdk = flutter.minSdkVersion
@@ -47,15 +58,35 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
+// 
+    // signingConfigs {
+    //     create("release") {
+    //         keyAlias = keystoreProperties["keyAlias"] as String
+    //         keyPassword = keystoreProperties["keyPassword"] as String
+    //         storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+    //         storePassword = keystoreProperties["storePassword"] as String
+    //     }
+    // }
+
+    signingConfigs {
+       release {
+           keyAlias keystoreProperties['keyAlias']
+           keyPassword keystoreProperties['keyPassword']
+           storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+           storePassword keystoreProperties['storePassword']
+       }
+   }
+// 
 
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.release
         }
     }
 }
+
 
 flutter {
     source = "../.."

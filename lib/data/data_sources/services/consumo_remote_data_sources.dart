@@ -20,7 +20,8 @@ class ConsumosRemoteDataSource {
 
     final query = <String, String>{
       'month': month,
-      if (direccionId != null && direccionId.isNotEmpty) 'direccion_id': direccionId,
+      if (direccionId != null && direccionId.isNotEmpty)
+        'direccion_id': direccionId,
     };
 
     final uri = Uri.parse('$baseUrl/index').replace(queryParameters: query);
@@ -31,7 +32,8 @@ class ConsumosRemoteDataSource {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(_extractError(response.body, 'Error al obtener lecturas'));
+      throw Exception(
+          _extractError(response.body, 'Error al obtener lecturas'));
     }
 
     final decoded = jsonDecode(response.body) as Map<String, dynamic>;
@@ -47,21 +49,28 @@ class ConsumosRemoteDataSource {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(_extractError(response.body, 'No se pudo buscar el cliente'));
+      throw Exception(
+          _extractError(response.body, 'No se pudo buscar el cliente'));
     }
 
     final decoded = jsonDecode(response.body) as Map<String, dynamic>;
-    final data = decoded['data'] as Map<String, dynamic>? ?? <String, dynamic>{};
-    final clienteJson = data['cliente'] as Map<String, dynamic>? ?? <String, dynamic>{};
-    final conexionesJson = (clienteJson['conexion'] ?? clienteJson['conexiones']) as List? ?? const [];
+    final data =
+        decoded['data'] as Map<String, dynamic>? ?? <String, dynamic>{};
+    final clienteJson =
+        data['cliente'] as Map<String, dynamic>? ?? <String, dynamic>{};
+    final conexionesJson =
+        (clienteJson['conexion'] ?? clienteJson['conexiones']) as List? ??
+            const [];
 
     final conexionesBase = conexionesJson
         .whereType<Map<String, dynamic>>()
         .map((json) => Conexion.fromJson({
               'conexion_id': json['id'],
               'codigo': json['codigo'],
+              'tipo_servicio': json['tipo_servicio'],
               'estado': json['estado'],
               'medidor': json['medidor'],
+              'ubicacion': json['ubicacion'],
               'cliente': clienteJson,
               'direccion': json['direccion'] ?? <String, dynamic>{},
               'consumos': const [],
@@ -107,7 +116,8 @@ class ConsumosRemoteDataSource {
     );
 
     if (response.statusCode != 200) {
-      throw Exception(_extractError(response.body, 'No se pudo obtener el historial'));
+      throw Exception(
+          _extractError(response.body, 'No se pudo obtener el historial'));
     }
 
     final decoded = jsonDecode(response.body) as Map<String, dynamic>;

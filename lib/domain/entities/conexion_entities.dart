@@ -51,6 +51,15 @@ class Conexion {
       ultimoConsumo?.estadoReciboLabel ?? 'Sin recibo';
 
   factory Conexion.fromJson(Map<String, dynamic> json) {
+    final direccionJson = Map<String, dynamic>.from(
+      json['direccion'] as Map<String, dynamic>? ?? <String, dynamic>{},
+    );
+    final ubicacion =
+        json['ubicacion'] ?? json['location'] ?? json['coordenadas'];
+    if (ubicacion != null && !direccionJson.containsKey('ubicacion')) {
+      direccionJson['ubicacion'] = ubicacion;
+    }
+
     final lecturasJson = json['consumos'];
     final consumos = lecturasJson is List
         ? lecturasJson
@@ -73,7 +82,7 @@ class Conexion {
       estado: json['estado']?.toString(),
       medidor: json['medidor'] == true || json['medidor'] == 1,
       cliente: Cliente.fromJson(json['cliente'] as Map<String, dynamic>),
-      direccion: Direccion.fromJson(json['direccion'] as Map<String, dynamic>),
+      direccion: Direccion.fromJson(direccionJson),
       lectura: lectura,
       consumos: consumos,
       consumoAnteriorSugerido: (json['consumo_anterior_sugerido'] ?? 0) as int,

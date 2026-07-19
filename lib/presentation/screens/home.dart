@@ -23,275 +23,264 @@ class HomeScreen extends ConsumerWidget {
     final tracking = ref.watch(homeTrackingProvider);
     final hasError = reporteHome.error != null;
     final trackingData = tracking.valueOrNull;
+    String? firstPendingMonth;
+    if (trackingData != null) {
+      for (final month in trackingData.months) {
+        if (month.pendingCount > 0) {
+          firstPendingMonth = month.monthKey;
+          break;
+        }
+      }
+    }
     final theme = Theme.of(context);
 
     return Container(
       color: const Color(0xFFF4F8FB),
       child: ListView(
-        padding: const EdgeInsets.all(22),
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
         children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF0F4C81),
-                  Color(0xFF0E5A74),
-                  Color(0xFF2F80ED),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF0F4C81).withAlpha(44),
-                  blurRadius: 30,
-                  offset: const Offset(0, 14),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(34),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: const Text(
-                        'Seguimiento',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    _HeroStatusPill(
-                      icon: trackingData?.isUpToDate == true
-                          ? Icons.verified_rounded
-                          : Icons.pending_actions_rounded,
-                      label: trackingData == null
-                          ? 'Cargando'
-                          : trackingData.isUpToDate
-                              ? 'Estas al dia'
-                              : '${trackingData.totalPending} pendientes',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Panel de control de lecturas',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  trackingData == null
-                      ? 'Revisando los ultimos tres meses.'
-                      : trackingData.isUpToDate
-                          ? 'No hay lecturas pendientes en los ultimos tres meses.'
-                          : 'Hay meses con faltantes. Entra para regularizar los registros pendientes.',
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    height: 1.4,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    _HeroMiniStat(
-                      label: 'Conexiones',
-                      value: reporteHome.isLoading
-                          ? '...'
-                          : reporteHome.cantidadConexiones.toString(),
-                    ),
-                    _HeroMiniStat(
-                      label: 'Mes actual',
-                      value: '${consumoState.lecturasFaltantes} faltan',
-                    ),
-                    _HeroMiniStat(
-                      label: '3 meses',
-                      value: trackingData == null
-                          ? '...'
-                          : trackingData.isUpToDate
-                              ? 'OK'
-                              : '${trackingData.totalPending} pendientes',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    FilledButton.icon(
-                      onPressed: onOpenConsumos,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF0F4C81),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                      icon: const Icon(Icons.receipt_long_rounded, size: 18),
-                      label: const Text('Ir a consumos'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        ref.read(reporteHomeProvider.notifier).loadReporte();
-                        ref.invalidate(homeTrackingProvider);
-                      },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white38),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                      icon: const Icon(Icons.refresh_rounded, size: 18),
-                      label: const Text('Actualizar'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-          Wrap(
-            spacing: 14,
-            runSpacing: 14,
-            children: [
-              _MetricCard(
-                title: 'Conexiones activas',
-                subtitle: 'Total consultado desde la API principal',
-                icon: Icons.people_alt_rounded,
-                accentColor: const Color(0xFF0F4C81),
-                value: reporteHome.isLoading
-                    ? '...'
-                    : reporteHome.cantidadConexiones.toString(),
-              ),
-              _MetricCard(
-                title: 'Mes actual registradas',
-                subtitle: 'Avance confirmado del periodo abierto',
-                icon: Icons.edit_note_rounded,
-                accentColor: const Color(0xFF1F9D68),
-                value: consumoState.lecturasRegistradas.toString(),
-              ),
-              _MetricCard(
-                title: 'Mes actual faltantes',
-                subtitle: 'Lecturas pendientes del mes cargado',
-                icon: Icons.pending_actions_rounded,
-                accentColor: const Color(0xFFC44536),
-                value: consumoState.lecturasFaltantes.toString(),
-              ),
-              _MetricCard(
-                title: 'Revision 3 meses',
-                subtitle: trackingData == null
-                    ? 'Cargando estado de seguimiento'
-                    : trackingData.isUpToDate
-                        ? 'Sin pendientes acumulados'
-                        : 'Requiere regularizar registros',
-                icon: trackingData?.isUpToDate == true
-                    ? Icons.verified_outlined
-                    : Icons.rule_folder_outlined,
-                accentColor: trackingData?.isUpToDate == true
-                    ? const Color(0xFF1F9D68)
-                    : const Color(0xFFE67E22),
-                value: trackingData == null
-                    ? '...'
-                    : trackingData.isUpToDate
-                        ? 'OK'
-                        : trackingData.totalPending.toString(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          _TrackingSection(
-            tracking: tracking,
-            onOpenPendingMonth: onOpenPendingConsumos,
-          ),
-          const SizedBox(height: 18),
-          Wrap(
-            spacing: 14,
-            runSpacing: 14,
-            children: [
-              const _ActionCard(
-                title: 'Como usarlo',
-                description:
-                    'Si un mes aparece con faltantes, entra desde esa tarjeta y el sistema te llevara a la lista de clientes pendientes.',
-                icon: Icons.timeline_rounded,
-                accentColor: Color(0xFF0E5A74),
-              ),
-              const _ActionCard(
-                title: 'Busqueda por cliente',
-                description:
-                    'Usa el modulo de busqueda para revisar conexiones e historial por DNI sin recorrer toda la lista.',
-                icon: Icons.manage_search_rounded,
-                accentColor: Color(0xFFE67E22),
-              ),
-              _ActionCard(
-                title: hasError ? 'Atencion requerida' : 'Estado del sistema',
-                description: hasError
-                    ? 'Se detecto un problema en la carga del dashboard. Revisa token o respuesta del endpoint.'
-                    : 'La vista principal ya esta orientada a seguimiento mensual y derivacion directa a pendientes.',
-                icon: hasError
-                    ? Icons.warning_amber_rounded
-                    : Icons.verified_outlined,
-                accentColor: hasError
-                    ? const Color(0xFFC44536)
-                    : const Color(0xFF1F9D68),
-              ),
-            ],
-          ),
-          if (hasError) ...[
-            const SizedBox(height: 18),
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF4F2),
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: const Color(0xFFF2C1BA)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 980),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.warning_amber_rounded,
-                    color: Color(0xFFC44536),
+                  const _SectionIntro(
+                    badge: 'Resumen',
+                    title: 'Vista principal',
+                    subtitle: 'Todo el estado del sistema en una vista mas limpia.',
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      reporteHome.error!,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: const Color(0xFF7A271A),
-                        height: 1.45,
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      _MetricCard(
+                        title: 'Conexiones',
+                        subtitle: 'API principal',
+                        icon: Icons.people_alt_rounded,
+                        accentColor: const Color(0xFF0F4C81),
+                        value: reporteHome.isLoading
+                            ? '...'
+                            : reporteHome.cantidadConexiones.toString(),
+                        onTap: onOpenConsumos,
+                      ),
+                      _MetricCard(
+                        title: 'Registradas',
+                        subtitle: 'Mes actual',
+                        icon: Icons.edit_note_rounded,
+                        accentColor: const Color(0xFF1F9D68),
+                        value: consumoState.lecturasRegistradas.toString(),
+                        onTap: onOpenConsumos,
+                      ),
+                      _MetricCard(
+                        title: 'Faltantes',
+                        subtitle: 'Mes actual',
+                        icon: Icons.pending_actions_rounded,
+                        accentColor: const Color(0xFFC44536),
+                        value: consumoState.lecturasFaltantes.toString(),
+                        onTap: onOpenPendingConsumos == null
+                            ? null
+                            : () {
+                                onOpenPendingConsumos!(consumoState.month);
+                              },
+                      ),
+                      _MetricCard(
+                        title: '3 meses',
+                        subtitle: trackingData == null
+                            ? 'Cargando'
+                            : trackingData.isUpToDate
+                                ? 'Sin pendientes'
+                                : 'Con faltantes',
+                        icon: trackingData?.isUpToDate == true
+                            ? Icons.verified_outlined
+                            : Icons.rule_folder_outlined,
+                        accentColor: trackingData?.isUpToDate == true
+                            ? const Color(0xFF1F9D68)
+                            : const Color(0xFFE67E22),
+                        value: trackingData == null
+                            ? '...'
+                            : trackingData.isUpToDate
+                                ? 'OK'
+                                : trackingData.totalPending.toString(),
+                        onTap: firstPendingMonth == null
+                            ? onOpenConsumos
+                            : () {
+                                onOpenPendingConsumos?.call(firstPendingMonth!);
+                              },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  _TrackingSection(
+                    tracking: tracking,
+                    onOpenPendingMonth: onOpenPendingConsumos,
+                  ),
+                  const SizedBox(height: 18),
+                  Wrap(
+                    spacing: 14,
+                    runSpacing: 14,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      const _ActionCard(
+                        title: 'Como usarlo',
+                        description:
+                            'Si un mes aparece con faltantes, entra desde esa tarjeta y el sistema te llevara a la lista de clientes pendientes.',
+                        icon: Icons.timeline_rounded,
+                        accentColor: Color(0xFF0E5A74),
+                      ),
+                      const _ActionCard(
+                        title: 'Busqueda por cliente',
+                        description:
+                            'Usa el modulo de busqueda para revisar conexiones e historial por DNI sin recorrer toda la lista.',
+                        icon: Icons.manage_search_rounded,
+                        accentColor: Color(0xFFE67E22),
+                      ),
+                      _ActionCard(
+                        title: hasError ? 'Atencion requerida' : 'Estado del sistema',
+                        description: hasError
+                            ? 'Se detecto un problema en la carga del dashboard. Revisa token o respuesta del endpoint.'
+                            : 'La vista principal ya esta orientada a seguimiento mensual y derivacion directa a pendientes.',
+                        icon: hasError
+                            ? Icons.warning_amber_rounded
+                            : Icons.verified_outlined,
+                        accentColor: hasError
+                            ? const Color(0xFFC44536)
+                            : const Color(0xFF1F9D68),
+                      ),
+                    ],
+                  ),
+                  if (hasError) ...[
+                    const SizedBox(height: 18),
+                    Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF4F2),
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(color: const Color(0xFFF2C1BA)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.warning_amber_rounded,
+                            color: Color(0xFFC44536),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              reporteHome.error!,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: const Color(0xFF7A271A),
+                                height: 1.45,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
-          ],
+          ),
         ],
       ),
+    );
+  }
+}
+
+class _SectionIntro extends StatelessWidget {
+  const _SectionIntro({
+    required this.badge,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final String badge;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE9F2FF),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: const Color(0xFFD4E4FF)),
+          ),
+          child: Text(
+            badge,
+            style: const TextStyle(
+              color: Color(0xFF0F4C81),
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF102A43),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          subtitle,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 13,
+            height: 1.35,
+            color: Color(0xFF526074),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({
+    required this.title,
+    required this.subtitle,
+  });
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF102A43),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          subtitle,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 12,
+            height: 1.35,
+            color: Color(0xFF526074),
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
     );
   }
 }
@@ -308,6 +297,7 @@ class _TrackingSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -329,16 +319,13 @@ class _TrackingSection extends StatelessWidget {
         error: (error, _) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Seguimiento de los ultimos 3 meses',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-              ),
+            const _SectionTitle(
+              title: 'Seguimiento de los ultimos 3 meses',
+              subtitle: 'Revision rapida del estado mensual.',
             ),
-            const SizedBox(height: 10),
             Text(
               error.toString(),
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Color(0xFFC44536),
                 height: 1.45,
@@ -370,20 +357,17 @@ class _TrackingContent extends StatelessWidget {
         summary.months.where((month) => month.pendingCount > 0).length;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Text(
-          'Seguimiento de los ultimos 3 meses',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-          ),
+        const _SectionTitle(
+          title: 'Seguimiento de los ultimos 3 meses',
+          subtitle: 'Abre un mes para revisar clientes pendientes.',
         ),
-        const SizedBox(height: 8),
         Text(
           summary.isUpToDate
               ? 'Estas al dia. Todas las lecturas de los tres ultimos meses estan completas.'
               : 'Te falta realizar el registro en $monthsWithPending mes${monthsWithPending == 1 ? '' : 'es'}. Toca una tarjeta para abrir los clientes pendientes.',
+          textAlign: TextAlign.center,
           style: const TextStyle(
             color: Color(0xFF526074),
             height: 1.5,
@@ -421,6 +405,7 @@ class _TrackingContent extends StatelessWidget {
                   summary.isUpToDate
                       ? 'Estas al dia'
                       : 'Hay ${summary.totalPending} lecturas por regularizar entre los tres meses revisados.',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     color: summary.isUpToDate
                         ? const Color(0xFF1F6E4C)
@@ -437,6 +422,7 @@ class _TrackingContent extends StatelessWidget {
         Wrap(
           spacing: 14,
           runSpacing: 14,
+          alignment: WrapAlignment.center,
           children: summary.months
               .map(
                 (month) => _MonthTrackingCard(
@@ -485,7 +471,7 @@ class _MonthTrackingCard extends StatelessWidget {
             border: Border.all(color: borderColor),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
                 children: [
@@ -519,6 +505,7 @@ class _MonthTrackingCard extends StatelessWidget {
               const SizedBox(height: 14),
               Text(
                 hasPending ? 'Te falta realizar el registro' : 'Estas al dia',
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -529,6 +516,7 @@ class _MonthTrackingCard extends StatelessWidget {
                 hasPending
                     ? '${month.pendingCount} cliente${month.pendingCount == 1 ? '' : 's'} pendientes en este mes.'
                     : 'No hay clientes con lectura pendiente en este periodo.',
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Color(0xFF526074),
                   height: 1.45,
@@ -568,6 +556,7 @@ class _MonthTrackingCard extends StatelessWidget {
               ],
               const SizedBox(height: 12),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     hasPending ? 'Ver clientes pendientes' : 'Periodo completo',
@@ -594,87 +583,6 @@ class _MonthTrackingCard extends StatelessWidget {
   }
 }
 
-class _HeroStatusPill extends StatelessWidget {
-  const _HeroStatusPill({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withAlpha(18),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white24),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.white, size: 16),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeroMiniStat extends StatelessWidget {
-  const _HeroMiniStat({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withAlpha(16),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white24),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _MetricCard extends StatelessWidget {
   const _MetricCard({
     required this.title,
@@ -682,6 +590,7 @@ class _MetricCard extends StatelessWidget {
     required this.icon,
     required this.accentColor,
     required this.value,
+    this.onTap,
   });
 
   final String title;
@@ -689,60 +598,90 @@ class _MetricCard extends StatelessWidget {
   final IconData icon;
   final Color accentColor;
   final String value;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 240, maxWidth: 320),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(26),
-          border: Border.all(color: const Color(0xFFE3EBF3)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(10),
-              blurRadius: 18,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: accentColor.withAlpha(28),
-              child: Icon(icon, color: accentColor),
-            ),
-            const SizedBox(height: 18),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              subtitle,
-              style: TextStyle(
-                color: Colors.blueGrey.shade600,
-                height: 1.45,
-              ),
-            ),
-          ],
-        ),
+    final cardChild = Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: accentColor.withAlpha(18),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: accentColor.withAlpha(52)),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withAlpha(16),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: accentColor.withAlpha(14),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(icon, color: accentColor, size: 20),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF102A43),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.blueGrey.shade600,
+              fontSize: 12,
+              height: 1.25,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final decoratedCard = onTap == null
+        ? cardChild
+        : Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(24),
+              child: Ink(child: cardChild),
+            ),
+          );
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 146, maxWidth: 180),
+      child: decoratedCard,
     );
   }
 }

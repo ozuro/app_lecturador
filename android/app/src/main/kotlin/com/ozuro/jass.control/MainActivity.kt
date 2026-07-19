@@ -1,4 +1,4 @@
-package com.example.app_lecturador
+package com.ozuro.jass.control
 
 import io.flutter.embedding.android.FlutterActivity
 

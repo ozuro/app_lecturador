@@ -3,6 +3,7 @@ import 'package:app_lecturador/presentation/providers/consumo/consumo_provider.d
 import 'package:app_lecturador/presentation/providers/consumo/consumo_state.dart';
 import 'package:app_lecturador/presentation/screens/consumos/editar_consumo.dart';
 import 'package:app_lecturador/presentation/screens/consumos/registro_consumo.dart';
+import 'package:app_lecturador/presentation/screens/consumos/ubicacion_conexion_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -61,14 +62,17 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
       final matchesPending = !onlyPending || !conexion.tieneLecturaRegistrada;
       return matchesSearch && matchesPending;
     }).toList();
+    final pendingCount = filteredData
+        .where((conexion) => !conexion.tieneLecturaRegistrada)
+        .length;
 
     return Container(
       color: const Color(0xFFF4F7FB),
       child: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(24),
@@ -125,7 +129,7 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
                 _MonthSelector(
                   selectedMonth: state.month,
                   onChanged: (year, month) {
@@ -136,7 +140,7 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
                         );
                   },
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 DropdownButtonFormField<String?>(
                   key: ValueKey(state.direccionId),
                   initialValue: state.direccionId,
@@ -168,31 +172,10 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
                         );
                   },
                 ),
-                const SizedBox(height: 10),
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Buscar cliente o direccion',
-                    isDense: true,
-                    prefixIcon: const Icon(Icons.search, size: 18),
-                    fillColor: const Color(0xFFF7FAFD),
-                    filled: true,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 14,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  onChanged: (value) {
-                    ref.read(consumoSearchProvider.notifier).state = value;
-                  },
-                ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Wrap(
                   spacing: 6,
-                  runSpacing: 6,
+                  runSpacing: 4,
                   children: [
                     _StatusChip(
                       icon: Icons.calendar_today_rounded,
@@ -223,42 +206,157 @@ class _ConsumosViewState extends ConsumerState<ConsumosView> {
                       ),
                   ],
                 ),
+                const SizedBox(height: 10),
+                _SearchPanel(
+                  onChanged: (value) {
+                    ref.read(consumoSearchProvider.notifier).state = value;
+                  },
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
+          const SizedBox(height: 10),
+          Row(
             children: [
-              _CompactSummaryCard(
-                color: const Color(0xFFE8F7EF),
-                accentColor: const Color(0xFF1F9D68),
-                title: 'Registradas',
-                value: state.lecturasRegistradas.toString(),
+              Expanded(
+                child: _CompactSummaryCard(
+                  color: const Color(0xFFE8F7EF),
+                  accentColor: const Color(0xFF1F9D68),
+                  title: 'Registradas',
+                  value: state.lecturasRegistradas.toString(),
+                ),
               ),
-              _CompactSummaryCard(
-                color: const Color(0xFFFFECE9),
-                accentColor: const Color(0xFFC44536),
-                title: 'Faltantes',
-                value: state.lecturasFaltantes.toString(),
-              ),
-              _CompactSummaryCard(
-                color: const Color(0xFFEAF2FF),
-                accentColor: const Color(0xFF2F80ED),
-                title: 'Conexiones',
-                value: state.totalConexiones.toString(),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _CompactSummaryCard(
+                  color: const Color(0xFFFFECE9),
+                  accentColor: const Color(0xFFC44536),
+                  title: 'Faltantes',
+                  value: state.lecturasFaltantes.toString(),
+                  isActive: onlyPending,
+                  onTap: () {
+                    ref.read(consumoOnlyPendingProvider.notifier).state =
+                        !onlyPending;
+                  },
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          SizedBox(
+          const SizedBox(height: 10),
+          _ListSectionHeader(
+            visibleCount: filteredData.length,
+            pendingCount: pendingCount,
+            onlyPending: onlyPending,
+          ),
+          const SizedBox(height: 8),
+          Container(
             height: MediaQuery.of(context).size.height * 0.62,
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFDCE7F3)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(6),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
             child: _Content(
               state: state,
               filteredData: filteredData,
               onRefresh: _reloadCurrentMonth,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SearchPanel extends StatelessWidget {
+  const _SearchPanel({
+    required this.onChanged,
+  });
+
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF6FAFF),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFD7E8FF)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDCEEFE),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.search_rounded,
+                  color: Color(0xFF0F4C81),
+                  size: 16,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'Buscar cliente o direccion',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF102A43),
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: const Text(
+                  'Rapido',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF526074),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            decoration: InputDecoration(
+              hintText: 'Buscar cliente o direccion',
+              isDense: true,
+              prefixIcon: const Icon(Icons.manage_search_rounded, size: 18),
+              fillColor: Colors.white,
+              filled: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none,
+              ),
+            ),
+            onChanged: onChanged,
           ),
         ],
       ),
@@ -281,27 +379,27 @@ class _MonthSelector extends StatelessWidget {
     final month = selectedMonth.substring(5);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: const Color(0xFFF5F9FF),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFD6E6FF)),
       ),
       child: Wrap(
-        spacing: 10,
-        runSpacing: 10,
+        spacing: 8,
+        runSpacing: 8,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           const Icon(
             Icons.calendar_month_rounded,
             color: Color(0xFF2F80ED),
-            size: 18,
+            size: 16,
           ),
           DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: year,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF243447),
               ),
@@ -320,7 +418,7 @@ class _MonthSelector extends StatelessWidget {
             child: DropdownButton<String>(
               value: month,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF243447),
               ),
@@ -341,13 +439,13 @@ class _MonthSelector extends StatelessWidget {
           Chip(
             backgroundColor: const Color(0xFF2F80ED),
             visualDensity: VisualDensity.compact,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
             label: Text(
               '${_monthName(month)} $year',
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
-                fontSize: 12,
+                fontSize: 11,
               ),
             ),
           ),
@@ -372,6 +470,94 @@ class _MonthSelector extends StatelessWidget {
       'Diciembre',
     ];
     return months[int.parse(month) - 1];
+  }
+}
+
+class _ListSectionHeader extends StatelessWidget {
+  const _ListSectionHeader({
+    required this.visibleCount,
+    required this.pendingCount,
+    required this.onlyPending,
+  });
+
+  final int visibleCount;
+  final int pendingCount;
+  final bool onlyPending;
+
+  @override
+  Widget build(BuildContext context) {
+    final subtitle = onlyPending
+        ? 'Mostrando solo conexiones pendientes.'
+        : pendingCount > 0
+            ? '$pendingCount pendientes por registrar en esta lista.'
+            : 'Todas las conexiones visibles ya tienen lectura registrada.';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F9FF),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFD4E4F7)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.format_list_bulleted_rounded,
+              color: Color(0xFF0F4C81),
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Lista de consumos',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF102A43),
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    height: 1.2,
+                    color: Color(0xFF526074),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              '$visibleCount visibles',
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF0F4C81),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -412,6 +598,7 @@ class _Content extends StatelessWidget {
         final conexion = filteredData[index];
 
         return _ConsumoListItem(
+          itemIndex: index,
           conexion: conexion,
           currentMonth: state.month,
           onRefresh: onRefresh,
@@ -423,11 +610,13 @@ class _Content extends StatelessWidget {
 
 class _ConsumoListItem extends StatefulWidget {
   const _ConsumoListItem({
+    required this.itemIndex,
     required this.conexion,
     required this.currentMonth,
     required this.onRefresh,
   });
 
+  final int itemIndex;
   final Conexion conexion;
   final String currentMonth;
   final Future<void> Function() onRefresh;
@@ -491,18 +680,43 @@ class _ConsumoListItemState extends State<_ConsumoListItem> {
     }
   }
 
+  Future<void> _openMapa() async {
+    if (!widget.conexion.direccion.tieneCoordenadas) {
+      return;
+    }
+
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => UbicacionConexionScreen(conexion: widget.conexion),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final conexion = widget.conexion;
     final lectura = conexion.lectura;
+    final isAlternateRow = widget.itemIndex.isOdd;
+    final stripeColor =
+        isAlternateRow ? const Color(0xFF0F4C81) : const Color(0xFFD8E5F3);
+    final cardColor = isAlternateRow ? const Color(0xFFF7FAFF) : Colors.white;
+    final addressColor =
+        isAlternateRow ? const Color(0xFFEEF4FB) : const Color(0xFFF7FAFD);
+    final avatarColor =
+        isAlternateRow ? const Color(0xFFDCEAFE) : const Color(0xFFEAF2FF);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
-      padding: const EdgeInsets.all(14),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE3EBF3)),
+        border: Border.all(
+          color: isAlternateRow
+              ? const Color(0xFFC8DAF0)
+              : const Color(0xFFE3EBF3),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(7),
@@ -514,186 +728,332 @@ class _ConsumoListItemState extends State<_ConsumoListItem> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEAF2FF),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.person_outline_rounded,
-                  color: Color(0xFF0F4C81),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
+          Container(
+            height: 6,
+            width: double.infinity,
+            color: stripeColor,
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      conexion.cliente.nombreCompleto,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        height: 1.25,
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: avatarColor,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(
+                        Icons.person_outline_rounded,
+                        color: Color(0xFF0F4C81),
+                        size: 20,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    _ReadingStatusBadge(
-                      isRegistered: conexion.tieneLecturaRegistrada,
-                      label: conexion.tieneLecturaRegistrada
-                          ? 'Lectura registrada'
-                          : 'Pendiente de registro',
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  conexion.cliente.nombreCompleto,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    height: 1.15,
+                                  ),
+                                ),
+                              ),
+                              if (conexion.tieneLecturaRegistrada) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF3F7FB),
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Text(
+                                    '${lectura?.consumoActual ?? 0}',
+                                    style: const TextStyle(
+                                      color: Color(0xFF526074),
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            'Conexion ${conexion.codigo ?? conexion.id}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF6B7280),
+                              height: 1.1,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          _ReadingStatusBadge(
+                            isRegistered: conexion.tieneLecturaRegistrada,
+                            label: conexion.tieneLecturaRegistrada
+                                ? 'Lectura registrada'
+                                : 'Pendiente de registro',
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF7FAFD),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.location_on_outlined,
-                  size: 18,
-                  color: Color(0xFF6B7280),
+                const SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 9,
+                  ),
+                  decoration: BoxDecoration(
+                    color: addressColor,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 16,
+                        color: Color(0xFF6B7280),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          conexion.direccion.descripcionCorta,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Color(0xFF4B5563),
+                            fontWeight: FontWeight.w600,
+                            height: 1.2,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    conexion.direccion.descripcionCorta,
-                    style: const TextStyle(
-                      color: Color(0xFF4B5563),
-                      fontWeight: FontWeight.w600,
-                      height: 1.3,
+                const SizedBox(height: 8),
+                if (!conexion.tieneLecturaRegistrada) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: _openRegistro,
+                      icon: const Icon(Icons.add_circle_outline_rounded,
+                          size: 18),
+                      label: const Text('Registrar lectura'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF2F80ED),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        textStyle: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          if (!conexion.tieneLecturaRegistrada) ...[
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: _openRegistro,
-                icon: const Icon(Icons.add_circle_outline_rounded, size: 20),
-                label: const Text('Registrar lectura'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF2F80ED),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                ),
-              ),
-            ),
-          ] else ...[
-            Row(
-              children: [
-                OutlinedButton.icon(
-                  onPressed: _openEdicion,
-                  icon: const Icon(Icons.edit_outlined, size: 16),
-                  label: const Text('Editar'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFE67E22),
-                    side: const BorderSide(color: Color(0xFFF1C58F)),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.w700,
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: OutlinedButton.icon(
+                      onPressed: conexion.direccion.tieneCoordenadas
+                          ? _openMapa
+                          : null,
+                      icon: const Icon(Icons.map_outlined, size: 15),
+                      label: Text(
+                        conexion.direccion.tieneCoordenadas
+                            ? 'Mapa'
+                            : 'Sin mapa',
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF0F4C81),
+                        side: BorderSide(
+                          color: conexion.direccion.tieneCoordenadas
+                              ? const Color(0xFFBFD4EB)
+                              : const Color(0xFFD7E1EC),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                const Spacer(),
-                Text(
-                  'Consumo: ${lectura?.consumoActual ?? 0}',
-                  style: const TextStyle(
-                    color: Color(0xFF526074),
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ],
-          const SizedBox(height: 6),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: () {
-                setState(() {
-                  _expanded = !_expanded;
-                });
-              },
-              icon: Icon(
-                _expanded
-                    ? Icons.keyboard_arrow_up_rounded
-                    : Icons.keyboard_arrow_down_rounded,
-                size: 18,
-              ),
-              label: Text(_expanded ? 'Ocultar datos' : 'Ver mas'),
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF0F4C81),
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                textStyle: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-            ),
-          ),
-          if (_expanded) ...[
-            const SizedBox(height: 8),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFD),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  _InfoPanel(
-                    label: 'Codigo',
-                    value: conexion.codigo ?? '${conexion.id}',
-                    icon: Icons.pin_outlined,
-                  ),
-                  _InfoPanel(
-                    label: 'Recibo',
-                    value: conexion.estadoReciboLabel,
-                    icon: Icons.receipt_long_outlined,
-                  ),
-                  _InfoPanel(
-                    label: 'Periodo',
-                    value: lectura?.mes ?? widget.currentMonth,
-                    icon: Icons.calendar_today_outlined,
-                  ),
-                  _InfoPanel(
-                    label: 'Documento',
-                    value: conexion.cliente.documentoPrincipal,
-                    icon: Icons.badge_outlined,
+                  const SizedBox(height: 2),
+                ] else ...[
+                  Row(
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: _openEdicion,
+                        icon: const Icon(Icons.edit_outlined, size: 15),
+                        label: const Text('Editar'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFFE67E22),
+                          side: const BorderSide(color: Color(0xFFF1C58F)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 9,
+                          ),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      OutlinedButton.icon(
+                        onPressed: conexion.direccion.tieneCoordenadas
+                            ? _openMapa
+                            : null,
+                        icon: const Icon(Icons.map_outlined, size: 15),
+                        label: Text(
+                          conexion.direccion.tieneCoordenadas
+                              ? 'Mapa'
+                              : 'Sin mapa',
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF0F4C81),
+                          side: BorderSide(
+                            color: conexion.direccion.tieneCoordenadas
+                                ? const Color(0xFFBFD4EB)
+                                : const Color(0xFFD7E1EC),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 9,
+                          ),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _expanded = !_expanded;
+                          });
+                        },
+                        icon: Icon(
+                          _expanded
+                              ? Icons.keyboard_arrow_up_rounded
+                              : Icons.keyboard_arrow_down_rounded,
+                          size: 17,
+                        ),
+                        label: Text(_expanded ? 'Menos' : 'Ver mas'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFF0F4C81),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 4,
+                          ),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              ),
+                if (!conexion.tieneLecturaRegistrada)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _expanded = !_expanded;
+                        });
+                      },
+                      icon: Icon(
+                        _expanded
+                            ? Icons.keyboard_arrow_up_rounded
+                            : Icons.keyboard_arrow_down_rounded,
+                        size: 17,
+                      ),
+                      label: Text(_expanded ? 'Menos' : 'Ver mas'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF0F4C81),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 4,
+                        ),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                if (_expanded) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFD),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        _InfoPanel(
+                          label: 'Codigo',
+                          value: conexion.codigo ?? '${conexion.id}',
+                          icon: Icons.pin_outlined,
+                        ),
+                        _InfoPanel(
+                          label: 'Recibo',
+                          value: conexion.estadoReciboLabel,
+                          icon: Icons.receipt_long_outlined,
+                        ),
+                        _InfoPanel(
+                          label: 'Periodo',
+                          value: lectura?.mes ?? widget.currentMonth,
+                          icon: Icons.calendar_today_outlined,
+                        ),
+                        _InfoPanel(
+                          label: 'Documento',
+                          value: conexion.cliente.documentoPrincipal,
+                          icon: Icons.badge_outlined,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ],
+          ),
         ],
       ),
     );
@@ -765,7 +1125,7 @@ class _StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: const Color(0xFFEFF4FA),
         borderRadius: BorderRadius.circular(12),
@@ -780,7 +1140,7 @@ class _StatusChip extends StatelessWidget {
             style: const TextStyle(
               color: Color(0xFF0F4C81),
               fontWeight: FontWeight.w700,
-              fontSize: 11,
+              fontSize: 10,
             ),
           ),
         ],
@@ -795,56 +1155,88 @@ class _CompactSummaryCard extends StatelessWidget {
     required this.accentColor,
     required this.title,
     required this.value,
+    this.isActive = false,
+    this.onTap,
   });
 
   final Color color;
   final Color accentColor;
   final String title;
   final String value;
+  final bool isActive;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 112, maxWidth: 148),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(16),
+    final card = AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 9),
+      decoration: BoxDecoration(
+        color: isActive ? accentColor.withAlpha(36) : color,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isActive ? accentColor.withAlpha(120) : Colors.transparent,
+          width: 1.2,
         ),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: accentColor.withAlpha(28),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                value,
-                style: TextStyle(
-                  color: accentColor,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
+        boxShadow: isActive
+            ? [
+                BoxShadow(
+                  color: accentColor.withAlpha(45),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
                 ),
+              ]
+            : null,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: isActive
+                  ? accentColor.withAlpha(52)
+                  : accentColor.withAlpha(28),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              value,
+              style: TextStyle(
+                color: accentColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  color: Color(0xFF243447),
-                  fontWeight: FontWeight.w700,
-                  fontSize: 12,
-                  height: 1.2,
-                ),
+          ),
+          const SizedBox(width: 7),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                color: const Color(0xFF243447),
+                fontWeight: FontWeight.w700,
+                fontSize: 11,
+                height: 1.2,
+                decoration: isActive ? TextDecoration.underline : null,
+                decorationColor: accentColor.withAlpha(180),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
+    );
+
+    if (onTap == null) {
+      return card;
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: card,
       ),
     );
   }
@@ -867,7 +1259,7 @@ class _ReadingStatusBadge extends StatelessWidget {
         isRegistered ? const Color(0xFF1F9D68) : const Color(0xFFC44536);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(999),
@@ -886,7 +1278,7 @@ class _ReadingStatusBadge extends StatelessWidget {
             style: TextStyle(
               color: foreground,
               fontWeight: FontWeight.w700,
-              fontSize: 11,
+              fontSize: 10,
             ),
           ),
         ],
