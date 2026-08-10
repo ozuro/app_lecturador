@@ -1,0 +1,27 @@
+import 'dart:convert';
+import 'package:app_lecturador/core/config/api_config.dart';
+import 'package:app_lecturador/features/home/domain/entities/reporte_home.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+class ReporteHomeRemoteDataSource {
+  Future<ReporteHomeEntity> getReporteHome() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/api/consumos/reporte_conexiones'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      return ReporteHomeEntity.fromJson(data);
+    } else {
+      throw Exception('Error al cargar reporte home');
+    }
+  }
+}

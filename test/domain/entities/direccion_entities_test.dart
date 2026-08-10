@@ -1,6 +1,6 @@
-import 'package:app_lecturador/domain/entities/cliente_entities.dart';
-import 'package:app_lecturador/domain/entities/conexion_entities.dart';
-import 'package:app_lecturador/domain/entities/direccion_entites.dart';
+import 'package:app_lecturador/features/consumos/domain/entities/cliente.dart';
+import 'package:app_lecturador/features/consumos/domain/entities/conexion.dart';
+import 'package:app_lecturador/features/consumos/domain/entities/direccion.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

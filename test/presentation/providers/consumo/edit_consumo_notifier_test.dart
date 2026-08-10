@@ -1,6 +1,6 @@
-import 'package:app_lecturador/domain/reporsitories/edit_consumo_repository.dart';
-import 'package:app_lecturador/presentation/providers/consumo/editar_consumo/edit_notifier.dart';
-import 'package:app_lecturador/presentation/providers/consumo/editar_consumo/edit_state.dart';
+import 'package:app_lecturador/features/consumos/domain/repositories/edit_consumo_repository.dart';
+import 'package:app_lecturador/features/consumos/presentation/providers/editar_consumo/edit_notifier.dart';
+import 'package:app_lecturador/features/consumos/presentation/providers/editar_consumo/edit_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

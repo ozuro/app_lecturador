@@ -1,11 +1,11 @@
-import 'package:app_lecturador/domain/entities/busqueda_cliente_entity.dart';
-import 'package:app_lecturador/domain/entities/cliente_entities.dart';
-import 'package:app_lecturador/domain/entities/conexion_entities.dart';
-import 'package:app_lecturador/domain/entities/consumo_entities.dart';
-import 'package:app_lecturador/domain/entities/direccion_entites.dart';
-import 'package:app_lecturador/domain/entities/lecturas_resumen_entity.dart';
-import 'package:app_lecturador/domain/reporsitories/consumo_repository.dart';
-import 'package:app_lecturador/presentation/providers/consumo/consumo_notifier.dart';
+import 'package:app_lecturador/features/consumos/domain/entities/busqueda_cliente.dart';
+import 'package:app_lecturador/features/consumos/domain/entities/cliente.dart';
+import 'package:app_lecturador/features/consumos/domain/entities/conexion.dart';
+import 'package:app_lecturador/features/consumos/domain/entities/consumo.dart';
+import 'package:app_lecturador/features/consumos/domain/entities/direccion.dart';
+import 'package:app_lecturador/features/consumos/domain/entities/lecturas_resumen.dart';
+import 'package:app_lecturador/features/consumos/domain/repositories/consumo_repository.dart';
+import 'package:app_lecturador/features/consumos/presentation/providers/consumo_notifier.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -69,7 +69,8 @@ void main() {
       expect(notifier.state.error, contains('fallo al cargar'));
     });
 
-    test('buscarPorDni actualiza searchResult cuando la busqueda es exitosa', () async {
+    test('buscarPorDni actualiza searchResult cuando la busqueda es exitosa',
+        () async {
       final cliente = Cliente(
         id: 99,
         tipoPersona: 'juridica',
@@ -89,7 +90,8 @@ void main() {
       await notifier.buscarPorDni('10406805714');
 
       expect(notifier.state.isSearching, isFalse);
-      expect(notifier.state.searchResult?.cliente.nombreCompleto, 'COMISARIA PNP');
+      expect(
+          notifier.state.searchResult?.cliente.nombreCompleto, 'COMISARIA PNP');
       expect(notifier.state.searchError, isNull);
     });
   });

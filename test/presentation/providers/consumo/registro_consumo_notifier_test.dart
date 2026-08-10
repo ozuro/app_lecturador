@@ -1,6 +1,6 @@
-import 'package:app_lecturador/domain/reporsitories/registro_consumo_repository.dart';
-import 'package:app_lecturador/presentation/providers/consumo/registro_consumo/registroConsumo_notifier.dart';
-import 'package:app_lecturador/presentation/providers/consumo/registro_consumo/registroConsumo_state.dart';
+import 'package:app_lecturador/features/consumos/domain/repositories/registro_consumo_repository.dart';
+import 'package:app_lecturador/features/consumos/presentation/providers/registro_consumo/registro_consumo_notifier.dart';
+import 'package:app_lecturador/features/consumos/presentation/providers/registro_consumo/registro_consumo_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
